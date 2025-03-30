@@ -1,0 +1,17 @@
+﻿@model DisCourse.Models.Post
+
+@{
+    ViewData["Title"] = "Xóa bài viết";
+}
+
+<h2>Xóa bài viết</h2>
+<p>Bạn có chắc chắn muốn xóa bài viết này?</p>
+
+<h3>@Model.Title</h3>
+<p>@Model.Content</p>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

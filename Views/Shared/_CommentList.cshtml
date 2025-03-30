@@ -1,0 +1,20 @@
+﻿@{
+    var comments = ViewBag.Comments as IEnumerable<DisCourse.Models.Comment>;
+}
+
+@if (comments != null && comments.Any())
+{
+    <ul class="list-group mt-3">
+        @foreach (var comment in comments)
+        {
+            <li class="list-group-item">
+                <strong>@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</strong>
+                <p>@comment.Content</p>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p class="text-muted mt-3">Chưa có bình luận nào.</p>
+}

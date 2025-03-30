@@ -1,0 +1,23 @@
+﻿@model DisCourse.Models.Course
+
+@{
+    ViewData["Title"] = "Chi tiết Course";
+}
+
+<h2>Chi tiết Course</h2>
+
+<div>
+    <h4>@Model.Name</h4>
+    <p>@Model.Description</p>
+    <p><strong>Ngày tạo:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy")</p>
+
+    @if (!string.IsNullOrEmpty(Model.Thumbnail))
+    {
+        <div class="mt-3">
+            <img src="@Model.Thumbnail" alt="Thumbnail của khóa học" class="img-fluid rounded shadow-sm" style="max-width: 400px;">
+        </div>
+    }
+</div>
+
+<a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Sửa</a>

@@ -1,0 +1,54 @@
+﻿@model DisCourse.Models.Post
+
+@{
+    ViewData["Title"] = "Tạo bài viết mới";
+    var defaultCourseId = ViewBag.Courses != null && ViewBag.Courses.Count > 0 ? ViewBag.Courses[0].Id : "";
+
+}
+
+<h2>Tạo bài viết mới</h2>
+
+<form asp-controller="Post" asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Title">Tiêu đề</label>
+        <input asp-for="Title" class="form-control" required />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CourseId">Chọn Course</label>
+        <select asp-for="CourseId" class="form-control" asp-items="@(new SelectList(ViewBag.Courses, "Id", "Name", defaultCourseId))">
+            <option value="">-- Chọn Course --</option>
+        </select>
+        <span asp-validation-for="CourseId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Content">Nội dung</label>
+        <textarea asp-for="Content" class="form-control" id="editor"></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu bài viết</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>
+
+<!-- CKEditor 5 Classic -->
+<script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/classic/ckeditor.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        ClassicEditor
+            .create(document.querySelector("#editor"), {
+                ckfinder: {
+                    uploadUrl: '/Post/UploadImage' // API xử lý tải ảnh lên server
+                }
+            })
+    .then(editor => {
+                    // Đồng bộ nội dung CKEditor vào textarea khi submit form
+                    document.querySelector("form").addEventListener("submit", () => {
+                        editor.updateSourceElement();
+                    });
+                })
+            .catch(error => {
+                console.error("Lỗi CKEditor:", error);
+            });
+    });
+</script>
