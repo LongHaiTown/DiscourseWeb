@@ -1,6 +1,7 @@
-﻿using DisCourse.Models;
+using DisCourse.Models;
 using DisCourse.Repository;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Đăng ký DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+.AddDefaultTokenProviders()
+.AddDefaultUI()
+.AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddRazorPages();
 
 // Đăng ký Repository
 builder.Services.AddScoped<ICourseRepository, EFCourseRepository>(); // Đăng ký CourseRepository
@@ -38,9 +45,12 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseAuthentication();
 
 app.UseRouting();
 app.UseAuthorization(); // Chỉ dùng nếu có Authorization
+
+app.MapRazorPages();
 
 app.MapControllerRoute(
     name: "default",

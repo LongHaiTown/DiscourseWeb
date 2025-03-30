@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-
+﻿
 namespace DisCourse.Models
 {
-    public class ApplicationDbContext : DbContext
+    using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore;
+
+    public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
@@ -13,6 +15,8 @@ namespace DisCourse.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder); // 🔥 THÊM DÒNG NÀY
+
             modelBuilder.Entity<Course>()
                 .HasData(new Course
                 {
