@@ -23,7 +23,7 @@ namespace DisCourse.Models
                     Id = 1,
                     Name = "Không chủ đề",
                     Description = "Các bài viết không thuộc chủ đề cụ thể",
-                    CreatedAt = new DateTime(2025, 3, 29, 0, 0, 0, DateTimeKind.Utc) // Giá trị cố định
+                    CreatedAt = new DateTime(2025, 3, 29, 0, 0, 0, DateTimeKind.Utc), // Giá trị cố định,
                 });
 
             modelBuilder.Entity<Post>()

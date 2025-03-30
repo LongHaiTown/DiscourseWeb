@@ -7,6 +7,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
+using System.Security.Claims;
+using DisCourseW.Models; // Thêm namespace này để lấy UserID
+
+
 namespace DisCourse.Controllers
 {
     public class PostController : Controller
@@ -44,6 +48,7 @@ namespace DisCourse.Controllers
             ViewBag.Comments = comments;
 
             return View(post);
+
         }
 
         // 📌 Hiển thị form tạo bài viết
@@ -59,6 +64,13 @@ namespace DisCourse.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Post post)
         {
+            // Lấy ID của User đang đăng nhập
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized(); // Nếu chưa đăng nhập, từ chối yêu cầu
+
+            // Gán UserID cho bài viết
+            post.AuthorId = userId;
+
             _logger.LogInformation($"CourseId: {post.CourseId}");
 
             //if (!ModelState.IsValid)

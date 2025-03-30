@@ -9,6 +9,5 @@ namespace DisCourse.Repository
         Task AddAsync(Post product);
         Task UpdateAsync(Post product);
         Task DeleteAsync(int id);
-    
     }
 }

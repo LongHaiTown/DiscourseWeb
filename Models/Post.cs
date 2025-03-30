@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DisCourse.Models
@@ -18,7 +19,11 @@ namespace DisCourse.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Thời gian tạo
 
-        public string? Author { get; set; } // Người viết bài
+        [Required]
+        public string AuthorId { get; set; }
+
+        [ForeignKey("AuthorId")]
+        public IdentityUser Author { get; set; }  // Liên kết với bảng User
 
         // Khóa ngoại trỏ đến Course
         public int CourseId { get; set; }
