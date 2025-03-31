@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 
 using System.Security.Claims;
-using DisCourseW.Models; // Thêm namespace này để lấy UserID
+using DisCourseW.Models;
+using Microsoft.AspNetCore.Authorization; // Thêm namespace này để lấy UserID
 
 
 namespace DisCourse.Controllers
@@ -52,8 +53,10 @@ namespace DisCourse.Controllers
         }
 
         // 📌 Hiển thị form tạo bài viết
+        [Authorize]
         public async Task<IActionResult> Create()
         {
+
             ViewBag.Courses = await _courseRepository.GetAllAsync(); // Gửi danh sách Course xuống View
             return View();
         }

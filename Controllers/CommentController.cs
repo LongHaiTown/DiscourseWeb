@@ -28,8 +28,17 @@ namespace DisCourse.Controllers
             return View(comments);
         }
         [HttpPost]
+        [Authorize] // Đảm bảo người dùng đã đăng nhập
+
         public async Task<IActionResult> Create(Comment comment)
         {
+            // Lấy ID của User đang đăng nhập
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized(); // Nếu chưa đăng nhập, từ chối yêu cầu
+
+            // Gán UserID cho bài viết
+            comment.AuthorId = userId;
+
             if (string.IsNullOrWhiteSpace(comment.Content))
             {
                 TempData["Error"] = "Nội dung bình luận không được để trống!";

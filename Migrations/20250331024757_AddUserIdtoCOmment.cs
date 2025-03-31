@@ -5,56 +5,46 @@
 namespace DisCourse.Migrations
 {
     /// <inheritdoc />
-    public partial class AddAuthorUserIDPost : Migration
+    public partial class AddUserIdtoCOmment : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Author",
-                table: "Posts");
-
             migrationBuilder.AddColumn<string>(
                 name: "AuthorId",
-                table: "Posts",
+                table: "Comments",
                 type: "nvarchar(450)",
                 nullable: false,
                 defaultValue: "");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Posts_AuthorId",
-                table: "Posts",
+                name: "IX_Comments_AuthorId",
+                table: "Comments",
                 column: "AuthorId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Posts_AspNetUsers_AuthorId",
-                table: "Posts",
+                name: "FK_Comments_AspNetUsers_AuthorId",
+                table: "Comments",
                 column: "AuthorId",
                 principalTable: "AspNetUsers",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Posts_AspNetUsers_AuthorId",
-                table: "Posts");
+                name: "FK_Comments_AspNetUsers_AuthorId",
+                table: "Comments");
 
             migrationBuilder.DropIndex(
-                name: "IX_Posts_AuthorId",
-                table: "Posts");
+                name: "IX_Comments_AuthorId",
+                table: "Comments");
 
             migrationBuilder.DropColumn(
                 name: "AuthorId",
-                table: "Posts");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Author",
-                table: "Posts",
-                type: "nvarchar(max)",
-                nullable: true);
+                table: "Comments");
         }
     }
 }

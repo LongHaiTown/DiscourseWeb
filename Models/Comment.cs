@@ -16,11 +16,12 @@ namespace DisCourse.Models
         [ForeignKey("PostId")]
         public Post Post { get; set; } // Điều hướng đến bài viết
 
-        //[Required]
-        //public string AuthorId { get; set; }
+        [Required]
+        public string AuthorId { get; set; }
 
-        //[ForeignKey("AuthorId")]
-        //public IdentityUser Author { get; set; }  // Liên kết với bảng User
+        [ForeignKey("AuthorId")]
+        public IdentityUser Author { get; set; }  // Liên kết với bảng User
+
 
         [Required]
         [MaxLength(1000)]

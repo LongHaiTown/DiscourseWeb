@@ -31,6 +31,12 @@ namespace DisCourse.Models
                 .WithMany(c => c.Posts)
                 .HasForeignKey(p => p.CourseId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.Author)
+                .WithMany()
+                .HasForeignKey(c => c.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict); // Không xóa tự động
         }
 
     }

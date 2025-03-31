@@ -6,11 +6,14 @@
 {
     <ul class="list-group mt-3">
         @foreach (var comment in comments)
-        {
+            {
+
             <li class="list-group-item">
-                <strong>@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</strong>
+                <strong>@(comment.Author != null ? comment.Author.UserName : "Người dùng ẩn danh")</strong>
+                <i>@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</i>
                 <p>@comment.Content</p>
             </li>
+
         }
     </ul>
 }

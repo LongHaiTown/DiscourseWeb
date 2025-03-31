@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DisCourse.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250330100418_AddAuthorUserIDPost")]
-    partial class AddAuthorUserIDPost
+    [Migration("20250331023425_vcc")]
+    partial class vcc
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
