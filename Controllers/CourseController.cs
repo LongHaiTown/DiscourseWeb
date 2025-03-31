@@ -2,6 +2,7 @@
 using DisCourse.Repository;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Security.Claims;
+using Microsoft.Extensions.Hosting;
 namespace DisCourse.Controllers
 {
     public class CourseController : Controller
@@ -48,18 +51,19 @@ namespace DisCourse.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Course course, IFormFile? ThumbnailFile)
         {
-            if (ModelState.IsValid)
-            {
-                if (ThumbnailFile != null)
-                {
-                    course.Thumbnail = await SaveImage(ThumbnailFile);
-                }
+            // Lấy ID của User đang đăng nhập
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized(); // Nếu chưa đăng nhập, từ chối yêu cầu
 
-                await _courseRepository.AddAsync(course);
-                return RedirectToAction(nameof(Index));
+            if (ThumbnailFile != null)
+            {
+                course.Thumbnail = await SaveImage(ThumbnailFile);
             }
 
-            return View(course);
+            // Gán UserID cho bài viết
+            course.OwnerID = userId;
+            await _courseRepository.AddAsync(course);
+            return RedirectToAction(nameof(Index));
         }
 
         // Hàm lưu ảnh vào thư mục wwwroot/images

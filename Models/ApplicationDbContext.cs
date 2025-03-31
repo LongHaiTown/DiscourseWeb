@@ -16,16 +16,6 @@ namespace DisCourse.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder); // 🔥 THÊM DÒNG NÀY
-
-            modelBuilder.Entity<Course>()
-                .HasData(new Course
-                {
-                    Id = 1,
-                    Name = "Không chủ đề",
-                    Description = "Các bài viết không thuộc chủ đề cụ thể",
-                    CreatedAt = new DateTime(2025, 3, 29, 0, 0, 0, DateTimeKind.Utc), // Giá trị cố định,
-                });
-
             modelBuilder.Entity<Post>()
                 .HasOne(p => p.Course)
                 .WithMany(c => c.Posts)
