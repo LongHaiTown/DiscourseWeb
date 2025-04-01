@@ -67,27 +67,18 @@ namespace DisCourse.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Post post)
         {
-            // Lấy ID của User đang đăng nhập
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null) return Unauthorized(); // Nếu chưa đăng nhập, từ chối yêu cầu
+            if (userId == null) return Unauthorized();
 
-            // Gán UserID cho bài viết
             post.AuthorId = userId;
 
             _logger.LogInformation($"CourseId: {post.CourseId}");
 
-            //if (!ModelState.IsValid)
-            //{
-            //    ViewBag.Courses = await _courseRepository.GetAllAsync();
-            //    _logger.LogInformation($"CourseId: {post.CourseId}");
-      
-            //    return View(post);
-
-            //}
             _logger.LogInformation("Bài viết mới được tạo!");
-
             await _postRepository.AddAsync(post);
-            return RedirectToAction(nameof(Index));
+
+            // Quay lại trang trước đó
+            return Redirect(Request.Headers["Referer"].ToString());
         }
 
         // 📌 Hiển thị form chỉnh sửa bài viết
@@ -105,7 +96,6 @@ namespace DisCourse.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Post post)
         {
-            if (id != post.Id) return BadRequest();
 
             //if (!ModelState.IsValid)
             //{
@@ -113,6 +103,7 @@ namespace DisCourse.Controllers
             //    return View(post);
             //}
 
+            post.AuthorId = post.AuthorId;
             await _postRepository.UpdateAsync(post);
             return RedirectToAction(nameof(Index));
         }

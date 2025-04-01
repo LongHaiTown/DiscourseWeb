@@ -12,15 +12,20 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Security.Claims;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Http.HttpResults;
 namespace DisCourse.Controllers
 {
     public class CourseController : Controller
     {
         private readonly ICourseRepository _courseRepository;
+        private readonly ILogger<PostController> _logger;
 
-        public CourseController(ICourseRepository courseRepository)
+
+        public CourseController(ICourseRepository courseRepository, ILogger<PostController> logger)
         {
             _courseRepository = courseRepository;
+            _logger = logger;
+
         }
 
         // 📌 Hiển thị danh sách Course
@@ -38,7 +43,14 @@ namespace DisCourse.Controllers
             {
                 return NotFound();
             }
-            return View(course);
+            var posts = await _courseRepository.GetPostsByCourseIdAsync(id);
+            var viewModel = new CourseDetailViewModel
+            {
+                Course = course,
+                Posts = posts
+            };
+
+            return View(viewModel);
         }
 
         // 📌 Hiển thị form tạo Course
@@ -62,6 +74,7 @@ namespace DisCourse.Controllers
 
             // Gán UserID cho bài viết
             course.OwnerID = userId;
+            course.CreatedAt = DateTime.UtcNow;
             await _courseRepository.AddAsync(course);
             return RedirectToAction(nameof(Index));
         }
@@ -113,18 +126,13 @@ namespace DisCourse.Controllers
                 return NotFound();
             }
 
-            if (!ModelState.IsValid)
-            {
-                return View(course);
-            }
-
             // Nếu có ảnh mới được upload, lưu ảnh và cập nhật đường dẫn
             if (ThumbnailFile != null)
             {
                 var imagePath = await SaveImage(ThumbnailFile);
                 course.Thumbnail = imagePath;
             }
-
+            _logger.LogInformation($"OwnerID của khóa học: {course.OwnerID}");
             await _courseRepository.UpdateAsync(course);
             return RedirectToAction(nameof(Index));
         }

@@ -23,8 +23,8 @@ namespace DisCourse.Models
         [Required]
         public string OwnerID { get; set; }
 
-        [ForeignKey("AuthorId")]
-        public IdentityUser Owner { get; set; }  // Liên kết với bảng User
+        [ForeignKey("OwnerID")]
+        public IdentityUser Owner { get; set; }
 
         // Khóa học có nhiều bài viết (1-N)
         public ICollection<Post> Posts { get; set; } = new List<Post>();

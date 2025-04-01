@@ -21,7 +21,9 @@ namespace DisCourse.Repository
 
         public async Task<Course> GetByIdAsync(int id)
         {
-            return await _context.Courses.FindAsync(id);
+            return await _context.Courses
+                .Include(p => p.Owner) // Load User
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task AddAsync(Course course)
@@ -44,6 +46,13 @@ namespace DisCourse.Repository
                 _context.Courses.Remove(course);
                 await _context.SaveChangesAsync();
             }
+        }
+        public async Task<IEnumerable<Post>> GetPostsByCourseIdAsync(int courseId)
+        {
+            return await _context.Posts
+                .Where(p => p.CourseId == courseId)
+                .Include(p => p.Author) // Load thông tin Author của bài viết
+                .ToListAsync();
         }
     }
 }

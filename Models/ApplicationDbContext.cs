@@ -27,6 +27,13 @@ namespace DisCourse.Models
                 .WithMany()
                 .HasForeignKey(c => c.AuthorId)
                 .OnDelete(DeleteBehavior.Restrict); // Không xóa tự động
+
+            // Ngăn chặn ON DELETE CASCADE ở khóa ngoại OwnerID
+            modelBuilder.Entity<Course>()
+                .HasOne(c => c.Owner)
+                .WithMany()
+                .HasForeignKey(c => c.OwnerID)
+                .OnDelete(DeleteBehavior.Restrict); // ⚠️ Đổi từ Cascade → Restrict
         }
 
     }

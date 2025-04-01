@@ -1,7 +1,11 @@
-﻿@model IEnumerable<DisCourse.Models.Course>
+﻿@using System.Security.Claims
+@model IEnumerable<DisCourse.Models.Course>
 
 @{
     ViewData["Title"] = "Danh sách Course";
+}
+@{
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Lấy ID của user đang đăng nhập
 }
 
 <h2>Danh sách Course</h2>
@@ -25,8 +29,15 @@
                 <td>@course.CreatedAt.ToString("dd/MM/yyyy")</td>
                 <td>
                     <a asp-action="Details" asp-route-id="@course.Id" class="btn btn-info">Xem</a>
-                    <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-warning">Sửa</a>
-                    <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-danger">Xóa</a>
+                    @if (currentUserId == course.OwnerID)
+                    {
+                        <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-warning">Sửa</a>
+                        <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-danger">Xóa</a>
+
+                    }
+
+                    
+
                 </td>
             </tr>
         }
