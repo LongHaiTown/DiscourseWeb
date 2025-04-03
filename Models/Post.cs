@@ -31,6 +31,7 @@ namespace DisCourse.Models
 
         [ForeignKey("CourseId")]
         public Course Course { get; set; }
+        public ICollection<LikePost> Likes { get; set; } = new List<LikePost>();
 
     }
 }

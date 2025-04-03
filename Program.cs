@@ -26,6 +26,7 @@ builder.Services.AddScoped<ICommentRepository, EFCommentRepository>();
 builder.Services.AddScoped<IUserCourseRepository, EFUserCourseRepository>();
 builder.Services.AddScoped<IUserRepository, EFUserRepository>();
 builder.Services.AddScoped<IUserProfilePictureRepository, EFUserProfilePictureRepository>();
+builder.Services.AddScoped<ILikePostRepository, EFLikePostRepository>();
 
 
 

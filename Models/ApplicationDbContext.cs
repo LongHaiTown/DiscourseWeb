@@ -14,12 +14,14 @@ namespace DisCourse.Models
         public DbSet<Comment> Comments { get; set; }
 
         public DbSet<UserCourse> UserCourses { get; set; }
-
+        
         public DbSet<UserProfilePicture> UserProfilePictures { get; set; } // Thêm bảng UserProfilePicture
+        public DbSet<LikePost> LikePosts { get; set; } // Thêm bảng UserProfilePicture
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder); // 🔥 THÊM DÒNG NÀY
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Post>()
                 .HasOne(p => p.Course)
                 .WithMany(c => c.Posts)
@@ -30,22 +32,30 @@ namespace DisCourse.Models
                 .HasOne(c => c.Author)
                 .WithMany()
                 .HasForeignKey(c => c.AuthorId)
-                .OnDelete(DeleteBehavior.Restrict); // Không xóa tự động
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Ngăn chặn ON DELETE CASCADE ở khóa ngoại OwnerID
             modelBuilder.Entity<Course>()
                 .HasOne(c => c.Owner)
                 .WithMany()
                 .HasForeignKey(c => c.OwnerID)
-                .OnDelete(DeleteBehavior.Restrict); // ⚠️ Đổi từ Cascade → Restrict
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Thiết lập mối quan hệ giữa UserProfilePicture và ApplicationUser
             modelBuilder.Entity<UserProfilePicture>()
                 .HasOne(up => up.User)
                 .WithMany()
                 .HasForeignKey(up => up.UserId);
 
+            modelBuilder.Entity<LikePost>()
+                .HasOne(lp => lp.User)
+                .WithMany() // Nếu bạn không muốn có một collection cho User
+                .HasForeignKey(lp => lp.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<LikePost>()
+                .HasOne(lp => lp.Post)
+                .WithMany(p => p.Likes) // Thay đổi ở đây để liên kết với collection Likes trong Post
+                .HasForeignKey(lp => lp.PostId)
+                .OnDelete(DeleteBehavior.Cascade); // Thay đổi thành Cascade nếu bạn muốn tự động xóa lượt thích khi bài viết bị xóa
         }
 
     }

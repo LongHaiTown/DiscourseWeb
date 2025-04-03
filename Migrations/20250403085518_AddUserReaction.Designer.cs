@@ -4,6 +4,7 @@ using DisCourse.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DisCourse.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250403085518_AddUserReaction")]
+    partial class AddUserReaction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -455,9 +458,9 @@ namespace DisCourse.Migrations
             modelBuilder.Entity("DisCourseW.Models.LikePost", b =>
                 {
                     b.HasOne("DisCourse.Models.Post", "Post")
-                        .WithMany("Likes")
+                        .WithMany()
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
@@ -555,11 +558,6 @@ namespace DisCourse.Migrations
             modelBuilder.Entity("DisCourse.Models.Course", b =>
                 {
                     b.Navigation("Posts");
-                });
-
-            modelBuilder.Entity("DisCourse.Models.Post", b =>
-                {
-                    b.Navigation("Likes");
                 });
 #pragma warning restore 612, 618
         }

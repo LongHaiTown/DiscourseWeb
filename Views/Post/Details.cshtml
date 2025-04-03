@@ -1,11 +1,19 @@
 ﻿@model DisCourse.Models.Post
-
+@using System.Security.Claims
 <h2>@Model.Title</h2>
 <p><strong>Ngày đăng:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy")</p>
-<p><strong>Người đăng:</strong> @Model.Author.UserName</p> <!-- Truy cập UserName trực tiếp -->
+<p><strong>Người đăng:</strong> @Model.Author.UserName</p>
 
 <div class="post-content">
     @Html.Raw(Model.Content)
+</div>
+
+<!-- Hiển thị số lượt thích -->
+<div id="like-section">
+    <button id="like-button" class="btn btn-success"
+            onclick="toggleLike(@Model.Id)">
+        <span id="like-status">Thích</span> (<span id="like-count">0</span>)
+    </button>
 </div>
 
 <!-- Hiển thị danh sách bình luận -->
@@ -17,3 +25,57 @@
 <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
 <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Chỉnh sửa</a>
 <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Xóa</a>
+
+@section Scripts {
+    <script>
+        // Hàm để thích hoặc bỏ thích bài viết
+        async function toggleLike(postId) {
+            const userId = '@User.FindFirstValue(ClaimTypes.NameIdentifier)';
+            const response = await fetch(`/api/LikePost/${postId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ UserId: userId })
+            });
+
+            if (response.ok) {
+                const likeCount = document.getElementById('like-count');
+                const likeStatus = document.getElementById('like-status');
+
+                // Cập nhật số lượt thích và trạng thái
+                if (likeStatus.innerText === 'Thích') {
+                    likeCount.innerText = parseInt(likeCount.innerText) + 1;
+                    likeStatus.innerText = 'Bỏ thích';
+                } else {
+                    likeCount.innerText = parseInt(likeCount.innerText) - 1;
+                    likeStatus.innerText = 'Thích';
+                }
+            } else {
+                alert('Có lỗi xảy ra. Vui lòng thử lại.');
+            }
+        }
+
+        // Hàm để kiểm tra xem bài viết đã được thích chưa
+        async function checkIfLiked(postId) {
+            const response = await fetch(`/api/LikePost/${postId}/isLiked`);
+            if (response.ok) {
+                const isLiked = await response.json();
+                const likeStatus = document.getElementById('like-status');
+                const likeCount = document.getElementById('like-count');
+
+                if (isLiked) {
+                    likeStatus.innerText = 'Bỏ thích';
+                } else {
+                    likeStatus.innerText = 'Thích';
+                }
+            }
+        }
+
+        // Kiểm tra trạng thái thích khi tải trang
+        document.addEventListener('DOMContentLoaded', function() {
+            checkIfLiked(@Model.Id);
+        });
+    </script>
+}
+}
