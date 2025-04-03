@@ -1,6 +1,7 @@
 ﻿
 namespace DisCourse.Models
 {
+    using DisCourseW.Models;
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,9 @@ namespace DisCourse.Models
         public DbSet<Course> Courses { get; set; }
         public DbSet<Comment> Comments { get; set; }
 
+        public DbSet<UserCourse> UserCourses { get; set; }
+
+        public DbSet<UserProfilePicture> UserProfilePictures { get; set; } // Thêm bảng UserProfilePicture
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,6 +38,14 @@ namespace DisCourse.Models
                 .WithMany()
                 .HasForeignKey(c => c.OwnerID)
                 .OnDelete(DeleteBehavior.Restrict); // ⚠️ Đổi từ Cascade → Restrict
+
+            // Thiết lập mối quan hệ giữa UserProfilePicture và ApplicationUser
+            modelBuilder.Entity<UserProfilePicture>()
+                .HasOne(up => up.User)
+                .WithMany()
+                .HasForeignKey(up => up.UserId);
+
+
         }
 
     }

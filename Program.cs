@@ -1,6 +1,7 @@
 using DisCourse.Models;
 using DisCourse.Repository;
 using DisCourseW;
+using DisCourseW.Repository;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,10 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<ICourseRepository, EFCourseRepository>(); // Đăng ký CourseRepository
 builder.Services.AddScoped<IPostRepository, EFPostRepository>();
 builder.Services.AddScoped<ICommentRepository, EFCommentRepository>();
+builder.Services.AddScoped<IUserCourseRepository, EFUserCourseRepository>();
+builder.Services.AddScoped<IUserRepository, EFUserRepository>();
+builder.Services.AddScoped<IUserProfilePictureRepository, EFUserProfilePictureRepository>();
+
 
 
 // Đăng ký Controllers & Views

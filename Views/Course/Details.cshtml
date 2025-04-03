@@ -8,6 +8,8 @@
 <h1>@Model.Course.Name</h1>
 <p>@Model.Course.Description</p>
 <p><strong>Chủ khóa học:</strong> @Model.Course.Owner.UserName</p>
+<button onclick="openAddUserModal('@Model.Course.Id')" class="btn btn-primary">Thêm user vào course</button>
+<button onclick="openViewUsersModal('@Model.Course.Id')" class="btn btn-info">Xem User đã đăng ký</button>
 
 <!-- Nút tạo bài viết -->
 <a asp-controller="Post" asp-action="Create" asp-route-courseId="@Model.Course.Id" class="btn btn-primary">Tạo bài viết mới</a>
@@ -49,6 +51,23 @@
         </li>
     }
 </ul>
-
 <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
 <a asp-action="Edit" asp-route-id="@Model.Course.Id" class="btn btn-warning">Sửa khóa học</a>
+
+<!-- Khu vực hiển thị Modal -->
+<div id="modalContainer"></div>
+
+<script>
+    function openAddUserModal(courseId) {
+        $.get('/Course/AddUserToCourse', { courseId: courseId }, function(data) {
+            $('#modalContainer').html(data);
+            $('#addUserModal').modal('show');
+        });
+    }
+        function openViewUsersModal(courseId) {
+        $.get('/Course/ViewRegisteredUsers', { courseId: courseId }, function(data) {
+            $('#modalContainer').html(data);
+            $('#viewUsersModal').modal('show');
+        });
+    }
+</script>

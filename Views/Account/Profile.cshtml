@@ -1,0 +1,31 @@
+﻿@model DisCourseW.Models.UserProfileViewModel
+
+<h2>Trang cá nhân của @Model.UserName</h2>
+
+<div>
+    <h3>Thông tin người dùng</h3>
+    <p><strong>ID:</strong> @Model.UserId</p>
+    <p><strong>Tên đăng nhập:</strong> @Model.UserName</p>
+    <p><strong>Email:</strong> @Model.Email</p>
+    <div>
+        <strong>Ảnh đại diện:</strong><br />
+        @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+        {
+            <img src="@Model.ProfilePictureUrl" alt="Ảnh đại diện" style="width: 150px; height: 150px;" />
+        }
+        else
+        {
+            <p>Chưa có ảnh đại diện.</p>
+        }
+    </div>
+</div>
+
+<!-- Form tải lên ảnh đại diện -->
+<h3>Cập nhật ảnh đại diện</h3>
+<form asp-action="UploadProfilePicture" method="post" enctype="multipart/form-data">
+    <div>
+        <label for="imageFile">Chọn ảnh đại diện:</label>
+        <input type="file" name="imageFile" id="imageFile" accept="image/*" required />
+    </div>
+    <button type="submit">Tải lên</button>
+</form>
