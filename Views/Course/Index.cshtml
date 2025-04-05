@@ -29,14 +29,11 @@
                 <td>@course.CreatedAt.ToString("dd/MM/yyyy")</td>
                 <td>
                     <a asp-action="Details" asp-route-id="@course.Id" class="btn btn-info">Xem</a>
-                    @if (currentUserId == course.OwnerID)
-                    {
-                        <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-warning">Sửa</a>
-                        <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-danger">Xóa</a>
-
-                    }
-
-                    
+                    @* if (currentUserId == course.OwnerID) *@
+                    @* { *@
+                    @*     <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-warning">Sửa</a>  *@
+                    @*     <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-danger">Xóa</a> *@
+                    @* } *@
 
                 </td>
             </tr>

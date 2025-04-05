@@ -1,31 +1,71 @@
 ﻿@model DisCourse.Models.Post
 @using System.Security.Claims
-<h2>@Model.Title</h2>
-<p><strong>Ngày đăng:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy")</p>
-<p><strong>Người đăng:</strong> @Model.Author.UserName</p>
 
-<div class="post-content">
-    @Html.Raw(Model.Content)
+<div class="container py-4">
+    <div class="card shadow-lg">
+        <!-- Ảnh thumbnail nếu có -->
+        @if (!string.IsNullOrEmpty(Model.Thumbnail))
+        {
+            <img src="@Model.Thumbnail" class="card-img-top" alt="@Model.Title" style="max-height: 400px; object-fit: cover;">
+        }
+        <div class="card-body">
+            <!-- Tiêu đề bài viết -->
+            <h2 class="card-title">@Model.Title</h2>
+            <p class="text-muted small">
+                Đăng bởi <strong>@Model.Author.UserName</strong> vào ngày @Model.CreatedAt.ToString("dd/MM/yyyy")
+            </p>
+
+            <!-- Nội dung bài viết -->
+            <div class="post-content my-3">
+                @Html.Raw(Model.Content)
+            </div>
+
+            <!-- Nút thích và các hành động khác -->
+            <div class="d-flex align-items-center justify-content-between mt-4">
+                <button id="like-button" class="btn btn-outline-primary"
+                        onclick="toggleLike(@Model.Id)">
+                    <i class="bi bi-hand-thumbs-up"></i>
+                    <span id="like-status">Thích</span> (<span id="like-count">0</span>)
+                </button>
+
+                <div>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary btn-sm">Chỉnh sửa</a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger btn-sm">Xóa</a>
+                    <a asp-action="Index" class="btn btn-outline-dark btn-sm">Quay lại</a>
+                </div>
+            </div>
+
+            <!-- Bình luận -->
+            <hr />
+            <h5 class="mb-3">Bình luận</h5>
+
+            <!-- Danh sách bình luận -->
+            @{
+                var comments = ViewBag.Comments as IEnumerable<DisCourse.Models.Comment>;
+            }
+            @if (comments != null && comments.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var comment in comments)
+                    {
+                        <li class="list-group-item">
+                            <strong>@(comment.Author != null ? comment.Author.UserName : "Người dùng ẩn danh")</strong>
+                            <small class="text-muted">@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                            <p>@comment.Content</p>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">Chưa có bình luận nào.</p>
+            }
+
+            <!-- Form thêm bình luận -->
+            @Html.Partial("_CommentForm", new DisCourse.Models.Comment { PostId = Model.Id })
+        </div>
+    </div>
 </div>
-
-<!-- Hiển thị số lượt thích -->
-<div id="like-section">
-    <button id="like-button" class="btn btn-success"
-            onclick="toggleLike(@Model.Id)">
-        <span id="like-status">Thích</span> (<span id="like-count">0</span>)
-    </button>
-</div>
-
-<!-- Hiển thị danh sách bình luận -->
-<partial name="_CommentList" model="ViewBag.Comments" />
-
-<!-- Form thêm bình luận -->
-<partial name="_CommentForm" model="new DisCourse.Models.Comment { PostId = Model.Id }" />
-
-<a asp-action="Index" class="btn btn-secondary">Quay lại</a>
-<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Chỉnh sửa</a>
-<a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Xóa</a>
-
 @section Scripts {
     <script>
         // Hàm để thích hoặc bỏ thích bài viết
@@ -33,17 +73,12 @@
             const userId = '@User.FindFirstValue(ClaimTypes.NameIdentifier)';
             const response = await fetch(`/api/LikePost/${postId}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ UserId: userId })
             });
-
             if (response.ok) {
-                const likeCount = document.getElementById('like-count');
                 const likeStatus = document.getElementById('like-status');
-
-                // Cập nhật số lượt thích và trạng thái
+                const likeCount = document.getElementById('like-count');
                 if (likeStatus.innerText === 'Thích') {
                     likeCount.innerText = parseInt(likeCount.innerText) + 1;
                     likeStatus.innerText = 'Bỏ thích';
@@ -56,18 +91,14 @@
             }
         }
 
-        // Hàm để kiểm tra xem bài viết đã được thích chưa
+        // Hàm kiểm tra trạng thái thích
         async function checkIfLiked(postId) {
             const response = await fetch(`/api/LikePost/${postId}/isLiked`);
             if (response.ok) {
                 const isLiked = await response.json();
                 const likeStatus = document.getElementById('like-status');
-                const likeCount = document.getElementById('like-count');
-
                 if (isLiked) {
                     likeStatus.innerText = 'Bỏ thích';
-                } else {
-                    likeStatus.innerText = 'Thích';
                 }
             }
         }
@@ -77,5 +108,4 @@
             checkIfLiked(@Model.Id);
         });
     </script>
-}
 }

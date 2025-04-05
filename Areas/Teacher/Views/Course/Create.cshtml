@@ -2,11 +2,13 @@
 
 @{
     ViewData["Title"] = "Thêm khóa học";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Reference the shared layout
+
 }
 
 <h2>Thêm khóa học</h2>
-
 <form asp-area="Teacher" asp-controller="Course" asp-action="Create" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
     <div class="form-group">
         <label asp-for="Name">Tên khóa học</label>
         <input asp-for="Name" class="form-control" required />
@@ -25,5 +27,5 @@
     </div>
 
     <button type="submit" class="btn btn-primary">Lưu khóa học</button>
-    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+    <a asp-area="Teacher" asp-controller="Course" asp-action="Index" class="btn btn-secondary">Hủy</a>
 </form>

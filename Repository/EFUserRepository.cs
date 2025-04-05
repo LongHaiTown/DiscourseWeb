@@ -24,10 +24,30 @@ namespace DisCourseW.Repository
             return await _context.Users
                 .FirstOrDefaultAsync(user => user.Id == userId);
         }
+                // Lấy tất cả khóa học của user theo OwnerID
+        public async Task<IEnumerable<Course>> GetCoursesByUserIdAsync(string userId)
+        {
+            return await _context.Courses
+                .Where(course => course.OwnerID == userId)
+                .ToListAsync();
+        }
 
         public Task<IEnumerable<(IdentityUser User, int CourseCount)>> GetUsersWithCourseCountAsync()
         {
             throw new NotImplementedException();
+        }
+
+        public IEnumerable<Post> GetPostsByOwner(string userId)
+        {
+            // LINQ truy vấn lấy bài viết thuộc về các khóa học mà user sở hữu
+            var posts = _context.Courses
+                .Where(course => course.OwnerID == userId) // Lọc khóa học theo OwnerID
+                .SelectMany(course => course.Posts)        // Lấy tất cả bài viết từ các khóa học
+                .Include(post => post.Author)             // Bao gồm thông tin tác giả bài viết
+                .Include(post => post.Course)             // Bao gồm thông tin khóa học
+                .ToList();
+
+            return posts;
         }
 
 

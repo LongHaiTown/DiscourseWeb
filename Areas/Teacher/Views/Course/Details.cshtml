@@ -4,14 +4,16 @@
 @{
     var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Lấy ID của user đang đăng nhập
 }
-<img src ="@Model.Course.Thumbnail"/>
+<img src="@Model.Course.Thumbnail" />
 <h1>@Model.Course.Name</h1>
 <p>@Model.Course.Description</p>
 <p><strong>Chủ khóa học:</strong> @Model.Course.Owner.UserName</p>
+<button onclick="openAddUserModal('@Model.Course.Id')" class="btn btn-primary">Thêm user vào course</button>
 <button onclick="openViewUsersModal('@Model.Course.Id')" class="btn btn-info">Xem User đã đăng ký</button>
 
 <!-- Nút tạo bài viết -->
-<a asp-controller="Post" asp-action="Create" asp-route-courseId="@Model.Course.Id" class="btn btn-primary">Tạo bài viết mới</a>
+<a asp-area="" asp-controller="Post" asp-action="Create" asp-route-courseId="@Model.Course.Id" class="btn btn-primary">Tạo bài viết mới</a>
+
 <h2>Bài viết phù hợp với khóa học</h2>
 <ul>
     @foreach (var post in Model.Posts.Where(p => p.AuthorId == Model.Course.OwnerID))
@@ -22,8 +24,8 @@
             <p><strong>Tác giả:</strong> @post.Author.UserName</p>
             @if (currentUserId == Model.Course.Owner.Id)
             {
-                <a asp-controller="Post" asp-action="Edit" asp-route-id="@post.Id" class="btn btn-warning">Sửa</a>
-                <form asp-controller="Post" asp-action="Delete" asp-route-id="@post.Id" method="post" style="display:inline;">
+                <a asp-area="" asp-controller="Post" asp-action="Edit" asp-route-id="@post.Id" class="btn btn-warning">Sửa</a>
+                <form asp-area="" asp-controller="Post" asp-action="Delete" asp-route-id="@post.Id" method="post" style="display:inline;">
                     <button type="submit" class="btn btn-danger">Xóa</button>
                 </form>
             }

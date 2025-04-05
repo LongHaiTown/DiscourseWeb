@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using DisCourse.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace DisCourseW.Repository
 {
@@ -7,6 +8,8 @@ namespace DisCourseW.Repository
         Task<IEnumerable<IdentityUser>> GetAllUsersAsync(); // Lấy tất cả user
         Task<IEnumerable<(IdentityUser User, int CourseCount)>> GetUsersWithCourseCountAsync(); // Lấy user kèm số khóa học đã đăng ký
         Task<IdentityUser> GetUserByIdAsync(string userId);
+        Task<IEnumerable<Course>> GetCoursesByUserIdAsync(string userId);
+        IEnumerable<Post> GetPostsByOwner(string userId);
 
     }
 }

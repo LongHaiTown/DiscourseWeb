@@ -65,10 +65,15 @@ namespace DisCourse.Controllers
         // 📌 Xử lý tạo bài viết
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Post post)
+        public async Task<IActionResult> Create(Post post, IFormFile? ThumbnailFile)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Unauthorized();
+
+            if (ThumbnailFile != null)
+            {
+                post.Thumbnail = await SaveImage(ThumbnailFile);
+            }
 
             post.AuthorId = userId;
 
@@ -127,6 +132,32 @@ namespace DisCourse.Controllers
             await _postRepository.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
+        // Hàm lưu ảnh vào thư mục wwwroot/images
+        private async Task<string?> SaveImage(IFormFile? imageFile)
+        {
+            if (imageFile == null || imageFile.Length == 0)
+                return null; // Trả về null nếu không có file
+
+            var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+
+            // Tạo thư mục nếu chưa có
+            if (!Directory.Exists(uploadFolder))
+            {
+                Directory.CreateDirectory(uploadFolder);
+            }
+
+            // Tạo tên file duy nhất
+            var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+            var filePath = Path.Combine(uploadFolder, uniqueFileName);
+
+            // Lưu file vào thư mục
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await imageFile.CopyToAsync(fileStream);
+            }
+
+            return "/images/" + uniqueFileName; // Trả về đường dẫn lưu vào database
+        }
         [HttpPost]
         public async Task<IActionResult> UploadImage(IFormFile upload) // CKEditor sends the file with parameter name 'upload'
         {
@@ -135,7 +166,7 @@ namespace DisCourse.Controllers
                 if (upload != null && upload.Length > 0)
                 {
                     // Tạo thư mục nếu chưa có
-                    var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                    var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
                     if (!Directory.Exists(uploadFolder))
                     {
                         Directory.CreateDirectory(uploadFolder);

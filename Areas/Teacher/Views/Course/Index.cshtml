@@ -1,0 +1,80 @@
+﻿@using System.Security.Claims
+@using DisCourseW.Areas.Teacher.Models
+@model DisCourseW.Areas.Teacher.Models.CoursePostView
+
+@{
+    ViewData["Title"] = "Danh sách Course và Post";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Reference the shared layout
+}
+@{
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Lấy ID của user đang đăng nhập
+}
+
+<h2>Danh sách Course</h2>
+<div asp-area="Teacher">
+    <a asp-action="Create" class="btn btn-info">Tạo mới </a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tên Course</th>
+                <th>Mô tả</th>
+                <th>Thời gian tạo</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in Model.Courses)
+            {
+                <tr>
+                    <td>@course.Name</td>
+                    <td>@course.Description</td>
+                    <td>@course.CreatedAt.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@course.Id" class="btn btn-info">Xem</a>
+                        @if (currentUserId == course.OwnerID)
+                        {
+
+                            <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-warning">Sửa</a>
+                            <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-danger">Xóa</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<h2>Danh sách Post</h2>
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tiêu đề</th>
+                <th>Nội dung</th>
+                <th>Khóa học</th>
+                <th>Tác giả</th>
+                <th>Ngày tạo</th>
+                <th>Thao tác</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var post in Model.Posts)
+            {
+                <tr>
+                    <td>@post.Title</td>
+                    <td>@post.Content</td>
+                    <td>@post.Course.Name</td>
+                    <td>@post.Author.UserName</td>
+                    <td>@post.CreatedAt.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-info">Xem</a>
+                        <a asp-action="Edit" asp-route-id="@post.Id" class="btn btn-warning">Sửa</a>
+                        <a asp-action="Delete" asp-route-id="@post.Id" class="btn btn-danger">Xóa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
