@@ -367,26 +367,22 @@
         document.getElementById('tab-' + tabName).classList.remove('border-transparent', 'text-gray-500');
         document.getElementById('tab-' + tabName).classList.add('border-blue-500', 'text-blue-600');
     }
-    function openViewUsersModal(courseId) {
-        fetch('/Course/ViewRegisteredUsers?courseId=' + courseId)
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('modalContainer').innerHTML = data;
-                document.getElementById('viewUsersModal').classList.remove('hidden');
-            })
-            .catch(error => console.error('Error loading modal:', error));
+
+    // Modal functionality
+    function openAddUserModal(courseId) {
+        $.get('/Course/AddUserToCourse', { courseId: courseId }, function(data) {
+            $('#modalContainer').html(data);
+            $('#addUserModal').modal('show');
+        });
     }
-    // Modal functionality với TailwindCSS
-     function openAddUserModal(courseId) {
-         fetch('/Course/AddUserToCourse?courseId=' + courseId)
-             .then(response => response.text())
-             .then(data => {
-                 document.getElementById('modalContainer').innerHTML = data;
-                 document.getElementById('addUserModal').classList.remove('hidden');
-             })
-             .catch(error => console.error('Error loading modal:', error));
-     }
-     
+
+    function openViewUsersModal(courseId) {
+        $.get('/Course/ViewRegisteredUsers', { courseId: courseId }, function(data) {
+            $('#modalContainer').html(data);
+            $('#viewUsersModal').modal('show');
+        });
+    }
+
     // Delete confirmation
     const deleteLinks = document.querySelectorAll('.delete-confirm');
     const modal = document.getElementById('delete-confirmation-modal');

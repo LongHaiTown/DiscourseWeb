@@ -91,6 +91,13 @@ app.UseEndpoints(endpoints =>
         areaName: "Teacher",
         pattern: "Teacher/{controller=Course}/{action=Index}/{id?}");
 
+    // Route cho Area "Admin"
+    endpoints.MapAreaControllerRoute(
+        name: "admin",
+        areaName: "Admin",
+        pattern: "Admin/{controller=Administrator}/{action=Index}/{id?}");
+
+
     // Route mặc định cho site chính
     endpoints.MapControllerRoute(
         name: "default",

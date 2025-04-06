@@ -11,6 +11,8 @@ namespace DisCourse.Repository
         Task AddAsync(Course course);
         Task UpdateAsync(Course course);
         Task DeleteAsync(int id);
+        IEnumerable<Course> GetTopCourses(int count);
+
         // 🆕 Hàm mới để lấy tất cả bài viết của một khóa học
         Task<IEnumerable<Post>> GetPostsByCourseIdAsync(int courseId);
     }

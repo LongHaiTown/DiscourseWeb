@@ -1,0 +1,496 @@
+﻿@using System.Security.Claims
+@using DisCourseW.Areas.Admin.Models
+@model DisCourseW.Areas.Admin.Models.CoursePostView
+
+@{
+    ViewData["Title"] = "Quản lý khóa học";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Dashboard Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Quản lý khóa học</h1>
+                <p class="mt-1 text-gray-600">Quản lý tất cả khóa học và bài viết của bạn</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <a asp-area="Teacher" asp-action="Create" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Tạo khóa học mới
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-lg font-semibold text-gray-700">Tổng khóa học</h2>
+                        <p class="text-3xl font-bold text-gray-900">@Model.Courses.Count()</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-lg font-semibold text-gray-700">Tổng bài viết</h2>
+                        <p class="text-3xl font-bold text-gray-900">@Model.Posts.Count()</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-lg font-semibold text-gray-700">Tổng học viên</h2>
+                        <p class="text-3xl font-bold text-gray-900">20</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8">
+                    <button onclick="showTab('courses')" id="tab-courses" class="tab-button border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        Khóa học
+                    </button>
+                    <button onclick="showTab('posts')" id="tab-posts" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        Bài viết
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Courses Tab -->
+        <div id="content-courses" class="tab-content">
+            <!-- Search and Filter -->
+            <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" id="course-search" placeholder="Tìm kiếm khóa học..."
+                           class="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <select id="course-sort" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="newest">Mới nhất</option>
+                        <option value="oldest">Cũ nhất</option>
+                        <option value="name-asc">Tên A-Z</option>
+                        <option value="name-desc">Tên Z-A</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Courses Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8" id="courses-container">
+                @foreach (var course in Model.Courses)
+                {
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden course-card">
+                        <div class="h-40 bg-gradient-to-r from-blue-500 to-purple-600 relative">
+                            @if (!string.IsNullOrEmpty(course.Thumbnail))
+                            {
+                                <img src="@course.Thumbnail" alt="@course.Name" class="w-full h-full object-cover">
+                            }
+                            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                <a asp-area="Teacher" asp-action="Details" asp-route-id="@course.Id" class="p-2 bg-white rounded-full mx-1 hover:bg-gray-100 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </a>
+                                <a asp-area="Teacher" asp-action="Edit" asp-route-id="@course.Id" class="p-2 bg-white rounded-full mx-1 hover:bg-gray-100 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </a>
+                                <a asp-area="Teacher" asp-action="Delete" asp-route-id="@course.Id" class="p-2 bg-white rounded-full mx-1 hover:bg-gray-100 transition-colors delete-confirm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold mb-2 course-name">@course.Name</h3>
+                            <p class="text-gray-600 text-sm mb-3 line-clamp-2 course-description">@course.Description</p>
+                            <div class="flex items-center justify-between text-sm">
+                                <div class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                    <span> số học viên</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="course-date">@course.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex justify-between">
+                                <a asp-area="Teacher" asp-action="Details" asp-route-id="@course.Id" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    Xem chi tiết
+                                </a>
+                                <a href="/Post/Create?courseId=@course.Id" class="text-green-600 hover:text-green-800 text-sm font-medium">
+                                    Thêm bài viết
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (!Model.Courses.Any())
+            {
+                <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Chưa có khóa học nào</h3>
+                    <p class="text-gray-600 mb-4">Bạn chưa tạo khóa học nào. Hãy bắt đầu tạo khóa học đầu tiên của bạn.</p>
+                    <a asp-area="Teacher" asp-action="Create" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                        Tạo khóa học mới
+                    </a>
+                </div>
+            }
+        </div>
+
+        <!-- Posts Tab -->
+        <div id="content-posts" class="tab-content hidden">
+            <!-- Search and Filter -->
+            <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" id="post-search" placeholder="Tìm kiếm bài viết..."
+                           class="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <select id="post-filter" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">Tất cả khóa học</option>
+                        @foreach (var course in Model.Courses)
+                        {
+                            <option value="@course.Id">@course.Name</option>
+                        }
+                    </select>
+                    <select id="post-sort" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="newest">Mới nhất</option>
+                        <option value="oldest">Cũ nhất</option>
+                        <option value="title-asc">Tiêu đề A-Z</option>
+                        <option value="title-desc">Tiêu đề Z-A</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Posts List -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Tiêu đề
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Khóa học
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Tác giả
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Ngày tạo
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Thao tác
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="posts-container">
+                            @foreach (var post in Model.Posts)
+                            {
+                                <tr class="hover:bg-gray-50 post-row" data-course-id="@post.CourseId">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-md overflow-hidden">
+                                                @if (!string.IsNullOrEmpty(post.Thumbnail))
+                                                {
+                                                    <img src="@post.Thumbnail" alt="@post.Title" class="h-10 w-10 object-cover">
+                                                }
+                                                else
+                                                {
+                                                    <div class="h-10 w-10 flex items-center justify-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                        </svg>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900 post-title">@post.Title</div>
+                                                <div class="text-sm text-gray-500 line-clamp-1">@(post.Content.Length > 50 ? post.Content.Substring(0, 50) + "..." : post.Content)</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">@post.Course.Name</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">@post.Author.UserName</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 post-date">
+                                        @post.CreatedAt.ToString("dd/MM/yyyy")
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-2">
+                                            <a href="/Post/Details/@post.Id" class="text-blue-600 hover:text-blue-900">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </a>
+                                            <a href="/Post/Edit/@post.Id" class="text-yellow-600 hover:text-yellow-900">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                            </a>
+                                            <a href="/Post/Delete/@post.Id" class="text-red-600 hover:text-red-900 delete-confirm">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            @if (!Model.Posts.Any())
+            {
+                <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Chưa có bài viết nào</h3>
+                    <p class="text-gray-600 mb-4">Bạn chưa tạo bài viết nào. Hãy bắt đầu tạo bài viết đầu tiên của bạn.</p>
+                    <a href="/Post/Create" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                        Tạo bài viết mới
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="delete-confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+        <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-red-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Xác nhận xóa</h3>
+            <p class="text-gray-600 mb-4">Bạn có chắc chắn muốn xóa mục này? Hành động này không thể hoàn tác.</p>
+        </div>
+        <div class="flex justify-center space-x-4 mt-4">
+            <button type="button" id="cancel-delete" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                Hủy
+            </button>
+            <a href="#" id="confirm-delete" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                Xóa
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tab switching functionality
+    function showTab(tabName) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+
+        // Show selected tab content
+        document.getElementById('content-' + tabName).classList.remove('hidden');
+
+        // Update tab button styles
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('border-blue-500', 'text-blue-600');
+            button.classList.add('border-transparent', 'text-gray-500');
+        });
+
+        document.getElementById('tab-' + tabName).classList.remove('border-transparent', 'text-gray-500');
+        document.getElementById('tab-' + tabName).classList.add('border-blue-500', 'text-blue-600');
+    }
+
+    // Course search functionality
+    document.getElementById('course-search').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const courseCards = document.querySelectorAll('.course-card');
+
+        courseCards.forEach(card => {
+            const courseName = card.querySelector('.course-name').textContent.toLowerCase();
+            const courseDescription = card.querySelector('.course-description').textContent.toLowerCase();
+
+            if (courseName.includes(searchTerm) || courseDescription.includes(searchTerm)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    // Post search functionality
+    document.getElementById('post-search').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const postRows = document.querySelectorAll('.post-row');
+
+        postRows.forEach(row => {
+            const postTitle = row.querySelector('.post-title').textContent.toLowerCase();
+
+            if (postTitle.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Post filter by course
+    document.getElementById('post-filter').addEventListener('change', function(e) {
+        const courseId = e.target.value;
+        const postRows = document.querySelectorAll('.post-row');
+
+        postRows.forEach(row => {
+            if (courseId === 'all' || row.dataset.courseId === courseId) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Delete confirmation
+    const deleteLinks = document.querySelectorAll('.delete-confirm');
+    const modal = document.getElementById('delete-confirmation-modal');
+    const confirmDeleteBtn = document.getElementById('confirm-delete');
+    const cancelDeleteBtn = document.getElementById('cancel-delete');
+
+    deleteLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            modal.classList.remove('hidden');
+            confirmDeleteBtn.href = this.href;
+        });
+    });
+
+    cancelDeleteBtn.addEventListener('click', function() {
+        modal.classList.add('hidden');
+    });
+
+    // Course sorting
+    document.getElementById('course-sort').addEventListener('change', function(e) {
+        const sortOption = e.target.value;
+        const coursesContainer = document.getElementById('courses-container');
+        const courseCards = Array.from(document.querySelectorAll('.course-card'));
+
+        courseCards.sort((a, b) => {
+            const nameA = a.querySelector('.course-name').textContent;
+            const nameB = b.querySelector('.course-name').textContent;
+            const dateA = new Date(a.querySelector('.course-date').textContent.split('/').reverse().join('-'));
+            const dateB = new Date(b.querySelector('.course-date').textContent.split('/').reverse().join('-'));
+
+            switch(sortOption) {
+                case 'newest':
+                    return dateB - dateA;
+                case 'oldest':
+                    return dateA - dateB;
+                case 'name-asc':
+                    return nameA.localeCompare(nameB);
+                case 'name-desc':
+                    return nameB.localeCompare(nameA);
+                default:
+                    return 0;
+            }
+        });
+
+        // Clear container
+        while (coursesContainer.firstChild) {
+            coursesContainer.removeChild(coursesContainer.firstChild);
+        }
+
+        // Append sorted cards
+        courseCards.forEach(card => {
+            coursesContainer.appendChild(card);
+        });
+    });
+
+    // Post sorting
+    document.getElementById('post-sort').addEventListener('change', function(e) {
+        const sortOption = e.target.value;
+        const postsContainer = document.getElementById('posts-container');
+        const postRows = Array.from(document.querySelectorAll('.post-row'));
+
+        postRows.sort((a, b) => {
+            const titleA = a.querySelector('.post-title').textContent;
+            const titleB = b.querySelector('.post-title').textContent;
+            const dateA = new Date(a.querySelector('.post-date').textContent.split('/').reverse().join('-'));
+            const dateB = new Date(b.querySelector('.post-date').textContent.split('/').reverse().join('-'));
+
+            switch(sortOption) {
+                case 'newest':
+                    return dateB - dateA;
+                case 'oldest':
+                    return dateA - dateB;
+                case 'title-asc':
+                    return titleA.localeCompare(titleB);
+                case 'title-desc':
+                    return titleB.localeCompare(titleA);
+                default:
+                    return 0;
+            }
+        });
+
+        // Clear container
+        while (postsContainer.firstChild) {
+            postsContainer.removeChild(postsContainer.firstChild);
+        }
+
+        // Append sorted rows
+        postRows.forEach(row => {
+            postsContainer.appendChild(row);
+        });
+    });
+</script>

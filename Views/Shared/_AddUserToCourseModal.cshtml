@@ -1,27 +1,112 @@
 ﻿@model UserCourseViewModel
-<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Thêm User vào Khóa học: @Model.Course.Name</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form asp-controller="Course"  asp-action="AddUserToCourseConfirm" method="post">
-                    <input type="hidden" name="courseId" value="@Model.Course.Id" />
-                    <label for="userId">Chọn User:</label>
-                    <select name="userId" class="form-control">
-                        @foreach (var user in Model.Users)
+
+<div id="addUserModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 max-h-[80vh] overflow-y-auto">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center mb-6 sticky top-0 bg-white z-10">
+            <h5 class="text-xl font-semibold text-gray-900">Quản lý học viên: @Model.Course.Name</h5>
+        <a asp-area="Teacher" asp-controller="Course" asp-action="Details" asp-route-id="@Model.Course.Id" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </a>
+        </div>
+        <!-- Modal Body -->
+        <div class="mb-6">
+            <h6 class="text-lg font-medium text-gray-800 mb-3">Học viên đã đăng ký</h6>
+            <form asp-controller="Course" asp-action="RemoveMultipleUsersFromCourse" method="post" id="removeUsersForm">
+                <input type="hidden" name="courseId" value="@Model.Course.Id" />
+                @if (Model.RegisteredUsers.Any())
+                @if (Model.RegisteredUsers.Any())
+                {
+                    <div class="grid gap-2 max-h-64 overflow-y-auto">
+                        @foreach (var user in Model.RegisteredUsers)
                         {
-                            <option value="@user.Id">@user.UserName</option>
+                            <label class="flex items-center p-2 bg-gray-100 rounded-md hover:bg-gray-50 cursor-pointer" data-user-id="@user.Id">
+                                <input type="checkbox" name="userIds" value="@user.Id" class="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500" />
+                                <span class="flex-1 ml-3 text-gray-700">@user.UserName</span>
+                            </label>
                         }
-                    </select>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary">Thêm</button>
                     </div>
-                </form>
-            </div>
+                    <div class="mt-4">
+                        <button type="submit" id="removeButton" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:bg-gray-400" onclick="return confirm('Bạn có chắc chắn muốn xóa các học viên đã chọn?');">Xóa đã chọn</button>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-gray-500 italic">Chưa có học viên nào đăng ký.</p>
+                }
+            </form>
+        </div>
+
+        <div class="mb-6">
+            <h6 class="text-lg font-medium text-gray-800 mb-3">Thêm học viên mới</h6>
+            <form asp-controller="Course" asp-action="AddUserToCourseConfirm" method="post" id="addUsersForm">
+                <input type="hidden" name="courseId" value="@Model.Course.Id" />
+                @if (Model.UnregisteredUsers.Any())
+                {
+                    <div class="grid gap-2 max-h-64 overflow-y-auto">
+                        @foreach (var user in Model.UnregisteredUsers)
+                        {
+                            <label class="flex items-center p-2 bg-white border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+                                <input type="checkbox" name="userIds" value="@user.Id" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                                <span class="ml-3 text-gray-700">@user.UserName</span>
+                            </label>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-gray-500 italic">Không còn học viên nào để thêm.</p>
+                }
+                <!-- Modal Footer for Add -->
+                <div class="flex justify-end space-x-3 sticky bottom-0 bg-white pt-4">
+                    <a asp-area="Teacher" asp-controller="Course" asp-action="Details" asp-route-id="@Model.Course.Id" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">Đóng</a>                    <button id="addButton" type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400">Thêm học viên</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Đóng modal
+        function closeAddUserModal() {
+            console.log('Closing modal');
+            document.getElementById('addUserModal').classList.add('hidden');
+        }
+        window.closeAddUserModal = closeAddUserModal;
+
+        // Kích hoạt nút "Thêm học viên"
+        const addCheckboxes = document.querySelectorAll('#addUsersForm input[name="userIds"]');
+        const addButton = document.getElementById('addButton');
+        if (addCheckboxes.length > 0) {
+            addCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const checkedCount = document.querySelectorAll('#addUsersForm input[name="userIds"]:checked').length;
+                    console.log('Add checked count:', checkedCount);
+                    addButton.disabled = checkedCount === 0;
+                });
+            });
+        } else {
+            console.log('No add checkboxes found');
+            addButton.disabled = true;
+        }
+
+        // Kích hoạt nút "Xóa đã chọn"
+        const removeCheckboxes = document.querySelectorAll('#removeUsersForm input[name="userIds"]');
+        const removeButton = document.getElementById('removeButton');
+        if (removeCheckboxes.length > 0) {
+            removeCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const checkedCount = document.querySelectorAll('#removeUsersForm input[name="userIds"]:checked').length;
+                    console.log('Remove checked count:', checkedCount);
+                    removeButton.disabled = checkedCount === 0;
+                });
+            });
+        } else {
+            console.log('No remove checkboxes found');
+            removeButton.disabled = true;
+        }
+    });
+</script>

@@ -23,7 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Areas\Teacher\Data\" />
+    <Folder Include="Areas\Teacher\Views\Course\Shared\" />
     <Folder Include="Migrations\" />
     <Folder Include="ViewModels\" />
     <Folder Include="wwwroot\uploads\" />

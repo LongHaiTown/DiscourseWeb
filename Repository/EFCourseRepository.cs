@@ -16,7 +16,9 @@ namespace DisCourse.Repository
 
         public async Task<IEnumerable<Course>> GetAllAsync()
         {
-            return await _context.Courses.ToListAsync();
+            return await _context.Courses
+                .Include(p => p.Owner) // Load User
+                .ToListAsync();
         }
 
         public async Task<Course> GetByIdAsync(int id)
@@ -54,5 +56,13 @@ namespace DisCourse.Repository
                 .Include(p => p.Author) // Load thông tin Author của bài viết
                 .ToListAsync();
         }
+        // Phương thức để lấy một số lượng khóa học cụ thể
+        public IEnumerable<Course> GetTopCourses(int count)
+        {
+            return _context.Courses
+                           .Take(count) // Lấy số lượng khóa học được chỉ định
+                           .ToList();  // Chuyển đổi thành danh sách
+        }
+
     }
 }

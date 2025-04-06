@@ -10,42 +10,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Knowledge Sharing Platform</title>
 
-    @* <!-- Tailwind CSS CDN --> *@
+    <!-- Thêm vào phần <head> -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+    <!-- Thêm vào trước thẻ đóng </body> -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-
-    <!-- CKEditor 5 CDN -->
-    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js">     
-    </script>
+    <!-- CKEditor 5 Custom Build hoặc CDN mới hơn -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.2.1/classic/ckeditor.js"></script>
 
     <script>
-        let editor;
-
         document.addEventListener('DOMContentLoaded', function () {
             const editorElement = document.querySelector('#editor');
-
-            // Kiểm tra nếu textarea tồn tại
             if (editorElement) {
                 ClassicEditor
                     .create(editorElement, {
                         toolbar: [
-                            'heading', // Công cụ định dạng tiêu đề
-                            '|',
-                            'bold', // In đậm
-                            'italic', // In nghiêng
-                            'link', // Chèn liên kết
-                            'bulletedList', // Danh sách không thứ tự
-                            'numberedList', // Danh sách có thứ tự
-                            '|',
-                            'outdent', // Giảm thụt lề
-                            'indent', // Tăng thụt lề
-                            '|',
-                            'imageUpload', // Tải ảnh lên
-                            'blockQuote', // Chèn trích dẫn
-                            'insertTable', // Chèn bảng
-                            'mediaEmbed', // Chèn phương tiện
-                            'undo', // Hoàn tác
-                            'redo' // Làm lại
+                            'heading', '|',
+                            'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
+                            'outdent', 'indent', '|',
+                            'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo'
                         ],
                         heading: {
                             options: [
@@ -55,40 +43,27 @@
                                 { model: 'heading3', view: 'h3', title: 'Tiêu đề 3', class: 'ck-heading_heading3' }
                             ]
                         },
-                        language: 'vi', // Ngôn ngữ Tiếng Việt
+                        language: 'vi',
                         image: {
                             toolbar: [
-                                'imageTextAlternative', // Văn bản thay thế cho ảnh
-                                'imageStyle:inline', // Ảnh nội dòng
-                                'imageStyle:block', // Ảnh dạng khối
-                                'imageStyle:side', // Ảnh bên cạnh
-                                'imageStyle:alignLeft', // Căn trái
-                                'imageStyle:full', // Căn giữa (toàn màn hình)
-                                'imageStyle:alignRight' // Căn phải
+                                'imageTextAlternative', 'imageStyle:inline', 'imageStyle:block',
+                                'imageStyle:side', 'imageStyle:alignLeft', 'imageStyle:full', 'imageStyle:alignRight'
                             ],
-                            styles: [
-                                'inline', 'block', 'side', 'alignLeft', 'alignRight', 'full'
-                            ]
+                            styles: ['inline', 'block', 'side', 'alignLeft', 'alignRight', 'full']
                         },
                         table: {
-                            contentToolbar: [
-                                'tableColumn', // Chỉnh sửa cột
-                                'tableRow', // Chỉnh sửa dòng
-                                'mergeTableCells' // Gộp ô trong bảng
-                            ]
+                            contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells']
                         },
                         ckfinder: {
-                            uploadUrl: '/Post/UploadImage' // URL tải ảnh lên server
+                            uploadUrl: '/Post/UploadImage'
                         }
                     })
                     .then(newEditor => {
-                        editor = newEditor;
-
-                        // Đồng bộ nội dung khi submit form
+                        window.editor = newEditor; // Lưu editor vào biến toàn cục để dễ debug
                         const form = document.querySelector('form');
                         if (form) {
                             form.addEventListener('submit', () => {
-                                editor.updateSourceElement();
+                                newEditor.updateSourceElement();
                             });
                         }
                     })
@@ -98,15 +73,23 @@
             }
         });
     </script>
-    <!-- CKEditor Tailwind Reset -->
+
+    <!-- CSS tùy chỉnh để tránh xung đột với Tailwind -->
+    <style>
+        .ck-editor__editable {
+            min-height: 200px; /* Đảm bảo chiều cao tối thiểu */
+        }
+
+        .ck-content h1, .ck-content h2, .ck-content h3 {
+            font-size: revert; /* Khôi phục kích thước chữ mặc định */
+            line-height: revert;
+            margin: revert;
+        }
+    </style>
+
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
-
-
-
-
 </head>
-
 <body class="bg-gray-50 min-h-screen flex flex-col">
     <header class="bg-white shadow-sm sticky top-0 z-10">
         <div class="container mx-auto px-4">
@@ -152,9 +135,12 @@
                                     <a asp-controller="Account" asp-action="MyCourses" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Courses</a>
                                     <a asp-controller="Account" asp-action="Bookmarks" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Bookmarks</a>
                                     <div class="border-t border-gray-100"></div>
-                                    <form asp-controller="Account" asp-action="Logout" method="post">
+
+                                    <form asp-area="Identity" asp-page="/Account/Logout" method="post">
+                                        @Html.AntiForgeryToken()
                                         <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign out</button>
                                     </form>
+
                                 </div>
                             </div>
                         </div>
@@ -162,10 +148,10 @@
                     else
                     {
                         <div class="flex items-center space-x-2">
-                            <a asp-controller="Account" asp-action="Login" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
+                            <a href="/Identity/Account/Login" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">
                                 Sign in
                             </a>
-                            <a asp-controller="Account" asp-action="Register" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                            <a href="/Identity/Account/Register" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
                                 Sign up
                             </a>
                         </div>
@@ -191,7 +177,9 @@
 
     <main class="flex-grow">
         @RenderBody()
+
     </main>
+
 
     <footer class="bg-white border-t py-8">
         <div class="container mx-auto px-4">
@@ -249,6 +237,7 @@
             </div>
         </div>
     </footer>
+
 
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
