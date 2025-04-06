@@ -13,6 +13,8 @@ namespace DisCourse.Models
         [Required, MaxLength(200)]
         public string Title { get; set; } // Tiêu đề bài viết
 
+        public string Summary { get; set; } // Tóm tắt bài viết
+
         [Required]
         public string Content { get; set; } // Nội dung (HTML từ CKEditor)
 

@@ -111,6 +111,10 @@ namespace DisCourse.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Thumbnail")
                         .HasColumnType("nvarchar(max)");
 

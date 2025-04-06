@@ -183,7 +183,7 @@ namespace DisCourse.Controllers
                     }
 
                     // Tạo URL đầy đủ
-                    var imageUrl = $"/uploads/{fileName}"; // Use relative URL
+                    var imageUrl = $"/images/{fileName}";
 
                     // Return response in CKEditor 5 expected format
                     return Json(new

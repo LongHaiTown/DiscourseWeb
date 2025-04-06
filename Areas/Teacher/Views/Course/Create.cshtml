@@ -2,30 +2,228 @@
 
 @{
     ViewData["Title"] = "Thêm khóa học";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // Reference the shared layout
-
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Thêm khóa học</h2>
-<form asp-area="Teacher" asp-controller="Course" asp-action="Create" method="post" enctype="multipart/form-data">
-    @Html.AntiForgeryToken()
-    <div class="form-group">
-        <label asp-for="Name">Tên khóa học</label>
-        <input asp-for="Name" class="form-control" required />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    </div>
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Thêm khóa học mới</h1>
+            <p class="mt-2 text-gray-600">Tạo khóa học mới để chia sẻ kiến thức của bạn với học viên</p>
+        </div>
 
-    <div class="form-group">
-        <label asp-for="Description">Mô tả</label>
-        <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
+        <!-- Course Creation Form -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-6">
+                <form asp-area="Teacher" asp-controller="Course" asp-action="Create" method="post" enctype="multipart/form-data" class="space-y-6">
+                    @Html.AntiForgeryToken()
 
-    <div class="form-group">
-        <label>Ảnh đại diện khóa học</label>
-        <input type="file" name="ThumbnailFile" class="form-control-file" />
-    </div>
+                    <!-- Course Name -->
+                    <div>
+                        <label asp-for="Name" class="block text-sm font-medium text-gray-700 mb-1">Tên khóa học</label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                            </div>
+                            <input asp-for="Name"
+                                   class="pl-10 focus:ring-blue-500 focus:border-blue-500 block w-full rounded-md border-gray-300 py-3"
+                                   placeholder="Nhập tên khóa học"
+                                   required />
+                        </div>
+                        <span asp-validation-for="Name" class="text-red-500 text-sm"></span>
+                        <p class="mt-1 text-sm text-gray-500">Tên khóa học nên ngắn gọn, súc tích và dễ nhớ</p>
+                    </div>
 
-    <button type="submit" class="btn btn-primary">Lưu khóa học</button>
-    <a asp-area="Teacher" asp-controller="Course" asp-action="Index" class="btn btn-secondary">Hủy</a>
-</form>
+                    <!-- Course Description -->
+                    <div>
+                        <label asp-for="Description" class="block text-sm font-medium text-gray-700 mb-1">Mô tả khóa học</label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute top-3 left-3 flex items-start pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                                </svg>
+                            </div>
+                            <textarea asp-for="Description"
+                                      class="pl-10 focus:ring-blue-500 focus:border-blue-500 block w-full rounded-md border-gray-300 py-3"
+                                      rows="5"
+                                      placeholder="Mô tả chi tiết về khóa học của bạn"
+                                      required></textarea>
+                        </div>
+                        <span asp-validation-for="Description" class="text-red-500 text-sm"></span>
+                        <p class="mt-1 text-sm text-gray-500">Mô tả rõ ràng về nội dung, đối tượng và lợi ích của khóa học</p>
+                    </div>
+
+                    <!-- Course Thumbnail -->
+                    <div>
+                        <label for="ThumbnailFile" class="block text-sm font-medium text-gray-700 mb-1">Ảnh đại diện khóa học</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                            <div class="space-y-1 text-center">
+                                <div id="thumbnail-preview" class="hidden mb-3">
+                                    <img id="preview-image" src="#" alt="Ảnh xem trước" class="mx-auto h-40 w-auto object-cover rounded">
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="ThumbnailFile" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                                        <span>Tải ảnh lên</span>
+                                        <input id="ThumbnailFile" name="ThumbnailFile" type="file" class="sr-only" accept="image/*" onchange="previewImage(this)">
+                                    </label>
+                                    <p class="pl-1">hoặc kéo thả vào đây</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF tối đa 2MB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Options (Optional) -->
+                    <div class="bg-gray-50 p-4 rounded-md">
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Tùy chọn bổ sung</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Course Level -->
+                            <div>
+                                <label for="Level" class="block text-sm font-medium text-gray-700 mb-1">Cấp độ</label>
+                                <select id="Level" name="Level" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                    <option value="Beginner">Người mới bắt đầu</option>
+                                    <option value="Intermediate">Trung cấp</option>
+                                    <option value="Advanced">Nâng cao</option>
+                                    <option value="AllLevels">Tất cả cấp độ</option>
+                                </select>
+                            </div>
+
+                            <!-- Estimated Duration -->
+                            <div>
+                                <label for="EstimatedDuration" class="block text-sm font-medium text-gray-700 mb-1">Thời lượng ước tính (giờ)</label>
+                                <input type="number" id="EstimatedDuration" name="EstimatedDuration" min="1"
+                                       class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="mt-4">
+                            <label for="Tags" class="block text-sm font-medium text-gray-700 mb-1">Thẻ (phân cách bằng dấu phẩy)</label>
+                            <input type="text" id="Tags" name="Tags"
+                                   class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                   placeholder="Ví dụ: lập trình, web, javascript">
+                            <p class="mt-1 text-sm text-gray-500">Thêm các thẻ giúp khóa học của bạn dễ tìm kiếm hơn</p>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex items-center justify-end space-x-3 pt-4">
+                        <a asp-area="Teacher" asp-controller="Course" asp-action="Index"
+                           class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Hủy
+                        </a>
+                        <button type="submit"
+                                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Tạo khóa học
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="mt-8 bg-blue-50 rounded-lg p-6">
+            <h3 class="text-lg font-medium text-blue-900 mb-3">Mẹo tạo khóa học hiệu quả</h3>
+            <ul class="space-y-2 text-sm text-blue-800">
+                <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Đặt tên khóa học ngắn gọn, rõ ràng và hấp dẫn</span>
+                </li>
+                <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Viết mô tả chi tiết về nội dung, đối tượng và lợi ích của khóa học</span>
+                </li>
+                <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Chọn ảnh đại diện chất lượng cao, liên quan đến nội dung khóa học</span>
+                </li>
+                <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Thêm các thẻ phù hợp để tăng khả năng tìm kiếm</span>
+                </li>
+                <li class="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Sau khi tạo khóa học, hãy thêm các bài viết chất lượng để thu hút học viên</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Preview image before upload
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                document.getElementById('preview-image').src = e.target.result;
+                document.getElementById('thumbnail-preview').classList.remove('hidden');
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Drag and drop functionality
+    const dropZone = document.querySelector('form');
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight() {
+        dropZone.querySelector('.border-dashed').classList.add('border-blue-300', 'bg-blue-50');
+    }
+
+    function unhighlight() {
+        dropZone.querySelector('.border-dashed').classList.remove('border-blue-300', 'bg-blue-50');
+    }
+
+    dropZone.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files.length) {
+            const fileInput = document.getElementById('ThumbnailFile');
+            fileInput.files = files;
+            previewImage(fileInput);
+        }
+    }
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
