@@ -1,0 +1,108 @@
+@model EduquizSuper.Models.ExamResult
+@{
+    ViewData["Title"] = "Chi tiết kết quả bài thi";
+    var questions = (List<EduquizSuper.Models.Question>)ViewData["Questions"];
+    var userAnswers = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(Model.UserAnswersJson);
+}
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>Chi tiết kết quả bài thi</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="StudentExam" asp-action="Index">Danh sách bài thi</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="StudentExam" asp-action="Result" asp-route-id="@Model.ExamId">Kết quả</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Chi tiết</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">@Model.Exam.ExamName</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p><strong>Môn học:</strong> @Model.Exam.Subject.SubjectName</p>
+                    <p><strong>Ngày thi:</strong> @Model.SubmitTime.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>Thời gian làm bài:</strong> @Model.Duration.ToString(@"hh\:mm\:ss")</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Tổng số câu:</strong> @Model.Exam.NumberOfQuestions</p>
+                    <p><strong>Số câu đúng:</strong> <span class="text-success">@Model.CorrectCount</span></p>
+                    <p><strong>Số câu sai:</strong> <span class="text-danger">@Model.IncorrectCount</span></p>
+                    <p><strong>Số câu chưa làm:</strong> <span class="text-warning">@Model.UnansweredCount</span></p>
+                    <p><strong>Điểm số:</strong> <span class="text-primary">@Model.Score</span></p>
+                </div>
+            </div>
+
+            <div class="questions-review">
+                @for (int i = 0; i < questions.Count; i++)
+                {
+                    var question = questions[i];
+                    var questionId = question.QuestionId;
+                    var userAnswer = userAnswers.ContainsKey(questionId) ? userAnswers[questionId] : null;
+                    var answers = Newtonsoft.Json.JsonConvert.DeserializeObject<List<dynamic>>(question.AnswersJson);
+                    var correctAnswer = answers.FirstOrDefault(a => (bool)a.isCorrect);
+                    var isCorrect = userAnswer != null && correctAnswer != null && userAnswer == correctAnswer.id.ToString();
+                    var cardClass = userAnswer == null ? "border-warning" : (isCorrect ? "border-success" : "border-danger");
+
+                    <div class="card @cardClass mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                Câu @(i + 1)
+                                @if (userAnswer == null)
+                                {
+                                    <span class="badge bg-warning float-end">Chưa trả lời</span>
+                                }
+                                else if (isCorrect)
+                                {
+                                    <span class="badge bg-success float-end">Đúng</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger float-end">Sai</span>
+                                }
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="question-content">@Html.Raw(question.QuestionContent)</p>
+                            <div class="answers-list">
+                                @foreach (var answer in answers)
+                                {
+                                    var isSelected = userAnswer == answer.id.ToString();
+                                    var isCorrectAnswer = (bool)answer.isCorrect;
+                                    var answerClass = isSelected ? (isCorrectAnswer ? "text-success" : "text-danger") : "";
+                                    var icon = isSelected ? (isCorrectAnswer ? "✓" : "✗") : "";
+
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" disabled
+                                               @(isSelected ? "checked" : "")>
+                                        <label class="form-check-label @answerClass">
+                                            @answer.content @icon
+                                            @if (isCorrectAnswer && !isSelected)
+                                            {
+                                                <span class="text-success">(Đáp án đúng)</span>
+                                            }
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Add any additional JavaScript functionality here
+        });
+    </script>
+}

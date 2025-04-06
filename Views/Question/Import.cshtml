@@ -1,0 +1,66 @@
+﻿@{
+    ViewData["Title"] = "Import câu hỏi";
+}
+
+<h1>Import câu hỏi</h1>
+
+<div class="card">
+    <div class="card-header">
+        <h5>Tải lên file câu hỏi</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Import" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="subjectId" class="form-label">Chọn môn học</label>
+                <select name="subjectId" id="subjectId" class="form-select" asp-items="ViewBag.SubjectId" required>
+                    <option value="">-- Chọn môn học --</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="file" class="form-label">Chọn file</label>
+                <input type="file" id="file" name="file" class="form-control" required accept=".csv,.xlsx">
+                <div class="form-text">Chấp nhận file CSV hoặc Excel (.xlsx)</div>
+            </div>
+            <div class="mb-3">
+                <h6>Định dạng file:</h6>
+                <ul>
+                    <li>Dòng đầu tiên là header</li>
+                    <li>Các cột theo thứ tự: ID câu hỏi, Nội dung câu hỏi, Độ khó (Easy/Medium/Hard), Đáp án 1, IsCorrect1, Đáp án 2, IsCorrect2, ...</li>
+                    <li>Cột IsCorrect chứa giá trị "true" hoặc "false"</li>
+                </ul>
+            </div>
+            <div class="mb-3">
+                <a href="/templates/question_import_template.xlsx" class="btn btn-outline-primary">Tải file mẫu</a>
+            </div>
+            <div class="d-grid gap-2 d-md-flex">
+                <button type="submit" class="btn btn-primary">Import</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mt-4">
+    <h5>Hướng dẫn:</h5>
+    <div class="card">
+        <div class="card-body">
+            <p>Thực hiện theo các bước sau để import câu hỏi:</p>
+            <ol>
+                <li>Chọn môn học cho các câu hỏi sẽ import</li>
+                <li>Tải file mẫu từ liên kết "Tải file mẫu" để xem cấu trúc file</li>
+                <li>
+                    Chuẩn bị file CSV hoặc Excel theo định dạng mẫu:
+                    <ul>
+                        <li>ID câu hỏi: Phải là duy nhất</li>
+                        <li>Nội dung câu hỏi: Nội dung của câu hỏi</li>
+                        <li>Độ khó: Phải là một trong các giá trị: Easy, Medium, Hard</li>
+                        <li>Đáp án: Mỗi đáp án gồm 2 cột liên tiếp (Nội dung đáp án và IsCorrect)</li>
+                        <li>IsCorrect: "true" cho đáp án đúng, "false" cho đáp án sai</li>
+                    </ul>
+                </li>
+                <li>Chọn file và nhấn "Import"</li>
+            </ol>
+            <p>Lưu ý: Mỗi câu hỏi phải có ít nhất một đáp án đúng.</p>
+        </div>
+    </div>
+</div>

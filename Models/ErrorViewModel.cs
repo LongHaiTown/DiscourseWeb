@@ -1,4 +1,4 @@
-namespace DisCourse.Models
+namespace EduquizSuper.Models
 {
     public class ErrorViewModel
     {

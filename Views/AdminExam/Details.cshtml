@@ -1,0 +1,99 @@
+﻿
+@* @{ *@
+@*     ViewData["Title"] = "Chi tiết bài thi"; *@
+@* } *@
+
+@* <h1>Chi tiết bài thi</h1> *@
+
+@* @if (TempData["SuccessMessage"] != null) *@
+@* { *@
+@*     <div class="alert alert-success"> *@
+@*         @TempData["SuccessMessage"] *@
+@*     </div> *@
+@* } *@
+
+@* <div class="card mb-4"> *@
+@*     <div class="card-header bg-primary text-white"> *@
+@*         <h4>@Model.ExamName</h4> *@
+@*     </div> *@
+@*     <div class="card-body"> *@
+@*         <div class="row"> *@
+@*             <div class="col-md-6"> *@
+@*                 <dl class="row"> *@
+@*                     <dt class="col-sm-4">Mã bài thi:</dt> *@
+@*                     <dd class="col-sm-8">@Model.ExamId</dd> *@
+
+@*                     <dt class="col-sm-4">Môn học:</dt> *@
+@*                     <dd class="col-sm-8">@Model.Subject.SubjectName</dd> *@
+
+@*                     <dt class="col-sm-4">Người quản lý:</dt> *@
+@*                     <dd class="col-sm-8">@Model.Manager.UserName</dd> *@
+@*                 </dl> *@
+@*             </div> *@
+@*             <div class="col-md-6"> *@
+@*                 <dl class="row"> *@
+@*                     <dt class="col-sm-4">Bắt đầu:</dt> *@
+@*                     <dd class="col-sm-8">@Model.StartTime.ToString("dd/MM/yyyy HH:mm")</dd> *@
+
+@*                     <dt class="col-sm-4">Kết thúc:</dt> *@
+@*                     <dd class="col-sm-8">@Model.EndTime.ToString("dd/MM/yyyy HH:mm")</dd> *@
+
+@*                     <dt class="col-sm-4">Số câu hỏi:</dt> *@
+@*                     <dd class="col-sm-8">@Model.NumberOfQuestions</dd> *@
+
+@*                     <dt class="col-sm-4">Tổng điểm:</dt> *@
+@*                     <dd class="col-sm-8">@Model.TotalScore</dd> *@
+@*                 </dl> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@*     <div class="card-footer"> *@
+@*         <div class="btn-group"> *@
+@*             <a asp-action="Edit" asp-route-id="@Model.ExamId" class="btn btn-primary">Chỉnh sửa</a> *@
+@*             <a asp-action="ManageQuestions" asp-route-id="@Model.ExamId" class="btn btn-warning">Quản lý câu hỏi</a> *@
+@*             <a asp-action="Delete" asp-route-id="@Model.ExamId" class="btn btn-danger">Xóa</a> *@
+@*             <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a> *@
+@*         </div> *@
+@*     </div> *@
+@* </div> *@
+
+@* <div class="card"> *@
+@*     <div class="card-header bg-info text-white"> *@
+@*         <h4>Danh sách câu hỏi (@Model.ExamDetails.Count())</h4> *@
+@*     </div> *@
+@*     <div class="card-body"> *@
+@*         @if (Model.ExamDetails != null && Model.ExamDetails.Any()) *@
+@*         { *@
+@*             <table class="table table-striped"> *@
+@*                 <thead> *@
+@*                     <tr> *@
+@*                         <th>STT</th> *@
+@*                         <th>Nội dung câu hỏi</th> *@
+@*                         <th>Loại câu hỏi</th> *@
+@*                         <th>Mức độ</th> *@
+@*                     </tr> *@
+@*                 </thead> *@
+@*                 <tbody> *@
+@*                     @{ *@
+@*                         int index = 1; *@
+@*                     } *@
+@*                     @foreach (var item in Model.ExamDetails) *@
+@*                     { *@
+@*                         <tr> *@
+@*                             <td>@(index++)</td> *@
+@*                             <td>@item.Question.QuestionContent</td> *@
+@*                             <td>@item.Question.QuestionType</td> *@
+@*                             <td>@item.Question.Level</td> *@
+@*                         </tr> *@
+@*                     } *@
+@*                 </tbody> *@
+@*             </table> *@
+@*         } *@
+@*         else *@
+@*         { *@
+@*             <div class="alert alert-warning"> *@
+@*                 Chưa có câu hỏi nào trong bài thi này. <a asp-action="ManageQuestions" asp-route-id="@Model.ExamId">Thêm câu hỏi ngay</a> *@
+@*             </div> *@
+@*         } *@
+@*     </div> *@
+@* </div>́*@

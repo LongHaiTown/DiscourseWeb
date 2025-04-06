@@ -1,0 +1,100 @@
+@model PaginatedList<EduquizSuper.Models.Exam>
+@{
+    ViewData["Title"] = "Danh sách bài thi";
+}
+
+<div class="container-fluid">
+    <h2 class="text-primary mb-4">@ViewData["Title"]</h2>
+
+    @if (User.IsInRole("Admin"))
+    {
+        <p>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Tạo mới bài thi
+            </a>
+        </p>
+    }
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th>Tên bài thi</th>
+                            <th>Môn học</th>
+                            <th>Thời gian (phút)</th>
+                            <th>Số câu hỏi</th>
+                            <th>Điểm tối đa</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.ExamName</td>
+                                <td>@item.Subject?.SubjectName</td>
+                                <td>@item.Duration</td>
+                                <td>@item.NumberOfQuestions</td>
+                                <td>@item.TotalScore</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.ExamId" class="btn btn-info btn-sm">
+                                            <i class="fas fa-info-circle"></i> Chi tiết
+                                        </a>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.ExamId" class="btn btn-warning btn-sm">
+                                                <i class="fas fa-edit"></i> Sửa
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.ExamId" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i> Xóa
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    Trang @Model.PageIndex trên @Model.TotalPages
+                </div>
+                <div>
+                    <a asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageIndex - 1)"
+                       class="btn btn-outline-primary @prevDisabled">
+                        <i class="fas fa-chevron-left"></i> Trước
+                    </a>
+                    <a asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageIndex + 1)"
+                       class="btn btn-outline-primary @nextDisabled">
+                        Sau <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Thêm xác nhận khi xóa
+            $('.btn-danger').click(function (e) {
+                if (!confirm('Bạn có chắc chắn muốn xóa bài thi này?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+}

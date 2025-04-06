@@ -1,73 +1,62 @@
-using DisCourse.Models;
-using DisCourse.Repository;
-using DisCourseW;
-using DisCourseW.Repository;
-using Microsoft.AspNetCore.Http.Features;
+﻿using EduquizSuper.Data;
+using EduquizSuper.Models;
+using EduquizSuper.Repositories;
+using EduquizSuper.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Cấu hình Logging
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-builder.Logging.AddDebug();
+// Đọc chuỗi kết nối từ appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // Đăng ký DbContext
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Đăng ký Identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 6;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireLowercase = true;
-}).AddDefaultTokenProviders()
-  .AddDefaultUI()
-  .AddEntityFrameworkStores<ApplicationDbContext>();
-
-// Đăng ký Razor Pages
-builder.Services.AddRazorPages();
-
-// Đăng ký Repository
+builder.Services.AddDbContext<EduquizContextDb>(options =>
+    options.UseSqlServer(connectionString));
+builder.Services.AddScoped<ISubjectRepository, EFSubjectRepository>();
 builder.Services.AddScoped<ICourseRepository, EFCourseRepository>();
-builder.Services.AddScoped<IPostRepository, EFPostRepository>();
-builder.Services.AddScoped<ICommentRepository, EFCommentRepository>();
-builder.Services.AddScoped<IUserCourseRepository, EFUserCourseRepository>();
-builder.Services.AddScoped<IUserRepository, EFUserRepository>();
-builder.Services.AddScoped<IUserProfilePictureRepository, EFUserProfilePictureRepository>();
-builder.Services.AddScoped<ILikePostRepository, EFLikePostRepository>();
+builder.Services.AddScoped<IExamRepository, EFExamRepository>();
+builder.Services.AddScoped<IQuestionRepository, EFQuestionRepository>();
+// Đăng ký Identity với chỉ 2 vai trò: Admin và User
+builder.Services.AddIdentity<User, IdentityRole>(options => {
+    // Cấu hình Identity
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+})
+    .AddEntityFrameworkStores<EduquizContextDb>()
+    .AddDefaultTokenProviders()
+    .AddRoles<IdentityRole>();
 
-// Cấu hình giới hạn upload file
-builder.Services.Configure<FormOptions>(options =>
-{
-    options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10MB
+// Cấu hình Cookie Authentication
+builder.Services.ConfigureApplicationCookie(options => {
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromHours(2);
 });
 
-// Build ứng dụng
+// Thêm Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+});
+
+// Thêm Authorization với các policy cụ thể
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("RequireUserRole", policy => policy.RequireRole("User"));
+});
+
+builder.Services.AddControllersWithViews();
+
 var app = builder.Build();
 
-// Seed dữ liệu (nếu cần)
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        await SeedData.Initialize(services);
-        Console.WriteLine("Seed dữ liệu thành công!");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Lỗi khi seed dữ liệu: {ex.Message}");
-        Console.WriteLine(ex.StackTrace); // In chi tiết lỗi để debug
-        throw;
-    }
-}
-
-// Configure the HTTP request pipeline
+// Cấu hình Middleware
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -75,30 +64,60 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
-
+app.UseStaticFiles(); // Đảm bảo phục vụ file tĩnh (CSS, JS, hình ảnh)
 app.UseRouting();
 
+// Kích hoạt Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Cấu hình Routing
-app.UseEndpoints(endpoints =>
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Tạo các vai trò và tài khoản admin mặc định khi khởi động ứng dụng
+using (var scope = app.Services.CreateScope())
 {
-    // Route cho Area "Teacher"
-    endpoints.MapAreaControllerRoute(
-        name: "teacher",
-        areaName: "Teacher",
-        pattern: "Teacher/{controller=Course}/{action=Index}/{id?}");
+    var services = scope.ServiceProvider;
+    try
+    {
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = services.GetRequiredService<UserManager<User>>();
 
-    // Route mặc định cho site chính
-    endpoints.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}");
+        // Tạo vai trò Admin và User nếu chưa tồn tại
+        if (!await roleManager.RoleExistsAsync("Admin"))
+            await roleManager.CreateAsync(new IdentityRole("Admin"));
 
-    // Razor Pages (dành cho Identity UI)
-    endpoints.MapRazorPages();
-});
+        if (!await roleManager.RoleExistsAsync("User"))
+            await roleManager.CreateAsync(new IdentityRole("User"));
 
-// Chạy ứng dụng
+        // Tạo tài khoản Admin mặc định nếu chưa tồn tại
+        var adminEmail = "admin@eduquiz.com";
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+        if (adminUser == null)
+        {
+            adminUser = new User
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                FullName = "System Administrator",
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(adminUser, "Admin@123");
+
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Lỗi khi tạo vai trò hoặc người dùng.");
+    }
+}
+
 app.Run();

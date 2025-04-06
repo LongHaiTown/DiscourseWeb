@@ -1,0 +1,73 @@
+﻿@* @model EduquizSuper.Models.Exam *@
+@* @{ *@
+@*     ViewData["Title"] = "Chỉnh sửa bài thi"; *@
+@* } *@
+
+@* <h1>Chỉnh sửa bài thi</h1> *@
+
+@* <div class="card"> *@
+@*     <div class="card-header bg-primary text-white"> *@
+@*         <h4>Thông tin bài thi</h4> *@
+@*     </div> *@
+@*     <div class="card-body"> *@
+@*         <form asp-action="Edit" method="post"> *@
+@*             <div asp-validation-summary="ModelOnly" class="text-danger"></div> *@
+@*             <input type="hidden" asp-for="ExamId" /> *@
+@*             <input type="hidden" asp-for="ManagerId" /> *@
+
+@*             <div class="row"> *@
+@*                 <div class="col-md-6"> *@
+@*                     <div class="form-group mb-3"> *@
+@*                         <label asp-for="ExamName" class="control-label">Tên bài thi</label> *@
+@*                         <input asp-for="ExamName" class="form-control" /> *@
+@*                         <span asp-validation-for="ExamName" class="text-danger"></span> *@
+@*                     </div> *@
+
+@*                     <div class="form-group mb-3"> *@
+@*                         <label asp-for="StartTime" class="control-label">Thời gian bắt đầu</label> *@
+@*                         <input asp-for="StartTime" type="datetime-local" class="form-control" value="@Model.StartTime.ToString("yyyy-MM-ddTHH:mm")" /> *@
+@*                         <span asp-validation-for="StartTime" class="text-danger"></span> *@
+@*                     </div> *@
+
+@*                     <div class="form-group mb-3"> *@
+@*                         <label asp-for="EndTime" class="control-label">Thời gian kết thúc</label> *@
+@*                         <input asp-for="EndTime" type="datetime-local" class="form-control" value="@Model.EndTime.ToString("yyyy-MM-ddTHH:mm")" /> *@
+@*                         <span asp-validation-for="EndTime" class="text-danger"></span> *@
+@*                     </div> *@
+@*                 </div> *@
+
+@*                 <div class="col-md-6"> *@
+@*                     <div class="form-group mb-3"> *@
+@*                         <label asp-for="SubjectId" class="control-label">Môn học</label> *@
+@*                         <select asp-for="SubjectId" class="form-control" asp-items="ViewBag.SubjectId"></select> *@
+@*                         <span asp-validation-for="SubjectId" class="text-danger"></span> *@
+@*                     </div> *@
+
+@*                     <div class="form-group mb-3"> *@
+@*                         <label asp-for="TotalScore" class="control-label">Tổng điểm</label> *@
+@*                         <input asp-for="TotalScore" type="number" class="form-control" /> *@
+@*                         <span asp-validation-for="TotalScore" class="text-danger"></span> *@
+@*                     </div> *@
+
+@*                     <div class="form-group mb-3"> *@
+@*                         <label asp-for="NumberOfQuestions" class="control-label">Số câu hỏi</label> *@
+@*                         <input asp-for="NumberOfQuestions" type="number" class="form-control" readonly /> *@
+@*                         <small class="text-muted">Số câu hỏi sẽ được cập nhật khi quản lý câu hỏi.</small> *@
+@*                     </div> *@
+@*                 </div> *@
+@*             </div> *@
+
+@*             <div class="form-group"> *@
+@*                 <button type="submit" class="btn btn-primary">Lưu thay đổi</button> *@
+@*                 <a asp-action="ManageQuestions" asp-route-id="@Model.ExamId" class="btn btn-warning">Quản lý câu hỏi</a> *@
+@*                 <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a> *@
+@*             </div> *@
+@*         </form> *@
+@*     </div> *@
+@* </div> *@
+
+@* @section Scripts { *@
+@*     @{ *@
+@*         await Html.RenderPartialAsync("_ValidationScriptsPartial"); *@
+@*     } *@
+@* } *@

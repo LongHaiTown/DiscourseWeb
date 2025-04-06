@@ -1,0 +1,60 @@
+@model EduquizSuper.Models.Exam
+@{
+    ViewData["Title"] = "Chi tiết bài thi";
+}
+
+<div class="container-fluid">
+    <h2 class="text-primary mb-4">@ViewData["Title"]</h2>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <dl class="row">
+                        <dt class="col-sm-4">Tên bài thi</dt>
+                        <dd class="col-sm-8">@Model.ExamName</dd>
+
+                        <dt class="col-sm-4">Môn học</dt>
+                        <dd class="col-sm-8">@Model.Subject?.SubjectName</dd>
+
+                        <dt class="col-sm-4">Thời gian làm bài</dt>
+                        <dd class="col-sm-8">@Model.Duration phút</dd>
+
+                        <dt class="col-sm-4">Tổng số câu hỏi</dt>
+                        <dd class="col-sm-8">@Model.NumberOfQuestions</dd>
+
+                        <dt class="col-sm-4">Số câu dễ</dt>
+                        <dd class="col-sm-8">@Model.EasyQuestions</dd>
+
+                        <dt class="col-sm-4">Số câu trung bình</dt>
+                        <dd class="col-sm-8">@Model.MediumQuestions</dd>
+
+                        <dt class="col-sm-4">Số câu khó</dt>
+                        <dd class="col-sm-8">@Model.HardQuestions</dd>
+
+                        <dt class="col-sm-4">Điểm mỗi câu</dt>
+                        <dd class="col-sm-8">@Model.ScorePerQuestion</dd>
+
+                        <dt class="col-sm-4">Tổng điểm</dt>
+                        <dd class="col-sm-8">@Model.TotalScore</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.ExamId" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Chỉnh sửa
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.ExamId" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Xóa
+                    </a>
+                }
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

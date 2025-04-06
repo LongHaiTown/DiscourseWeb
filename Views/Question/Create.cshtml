@@ -1,0 +1,112 @@
+﻿@model EduquizSuper.Models.Question
+
+@{
+    ViewData["Title"] = "Tạo câu hỏi mới";
+}
+
+<h1>Tạo câu hỏi mới</h1>
+
+<form asp-action="Create" method="post">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Thông tin câu hỏi</h5>
+                </div>
+                <div class="card-body">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="mb-3">
+                        <label asp-for="QuestionId" class="form-label">Mã câu hỏi</label>
+                        <input asp-for="QuestionId" class="form-control" required />
+                        <span asp-validation-for="QuestionId" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="SubjectId" class="form-label">Môn học</label>
+                        <select asp-for="SubjectId" class="form-select" asp-items="@((SelectList)ViewData["SubjectId"])" required>
+                            <option value="">-- Chọn môn học --</option>
+                        </select>
+                        <span asp-validation-for="SubjectId" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Difficulty" class="form-label">Độ khó</label>
+                        <select asp-for="Difficulty" class="form-select" required>
+                            <option value="">-- Chọn độ khó --</option>
+                            @foreach (var difficulty in (List<string>)ViewData["DifficultyLevels"])
+                            {
+                                <option value="@difficulty">@difficulty</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Difficulty" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="QuestionContent" class="form-label">Nội dung câu hỏi</label>
+                        <textarea asp-for="QuestionContent" class="form-control" rows="5" required></textarea>
+                        <span asp-validation-for="QuestionContent" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Đáp án</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Đáp án A -->
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text">A</span>
+                            <input type="text" name="answerTexts" class="form-control" required>
+                            <div class="input-group-text">
+                                <input class="form-check-input mt-0" type="radio" name="correctAnswer" value="0" required checked>
+                                <span class="ms-2">Đúng</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Đáp án B -->
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text">B</span>
+                            <input type="text" name="answerTexts" class="form-control" required>
+                            <div class="input-group-text">
+                                <input class="form-check-input mt-0" type="radio" name="correctAnswer" value="1">
+                                <span class="ms-2">Đúng</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Đáp án C -->
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text">C</span>
+                            <input type="text" name="answerTexts" class="form-control" required>
+                            <div class="input-group-text">
+                                <input class="form-check-input mt-0" type="radio" name="correctAnswer" value="2">
+                                <span class="ms-2">Đúng</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Đáp án D -->
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text">D</span>
+                            <input type="text" name="answerTexts" class="form-control" required>
+                            <div class="input-group-text">
+                                <input class="form-check-input mt-0" type="radio" name="correctAnswer" value="3">
+                                <span class="ms-2">Đúng</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Tạo mới</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Quay lại danh sách</a>
+    </div>
+</form>

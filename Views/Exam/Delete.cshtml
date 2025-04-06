@@ -1,0 +1,44 @@
+@model EduquizSuper.Models.Exam
+@{
+    ViewData["Title"] = "Xóa bài thi";
+}
+
+<div class="container-fluid">
+    <h2 class="text-danger mb-4">@ViewData["Title"]</h2>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                Bạn có chắc chắn muốn xóa bài thi này?
+            </div>
+
+            <dl class="row">
+                <dt class="col-sm-3">Tên bài thi</dt>
+                <dd class="col-sm-9">@Model.ExamName</dd>
+
+                <dt class="col-sm-3">Môn học</dt>
+                <dd class="col-sm-9">@Model.Subject?.SubjectName</dd>
+
+                <dt class="col-sm-3">Thời gian làm bài</dt>
+                <dd class="col-sm-9">@Model.Duration phút</dd>
+
+                <dt class="col-sm-3">Tổng số câu hỏi</dt>
+                <dd class="col-sm-9">@Model.NumberOfQuestions</dd>
+
+                <dt class="col-sm-3">Điểm tối đa</dt>
+                <dd class="col-sm-9">@Model.TotalScore</dd>
+            </dl>
+
+            <form asp-action="Delete" method="post" class="mt-4">
+                <input type="hidden" asp-for="ExamId" />
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Xác nhận xóa
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                </a>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,32 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Identity;
+﻿using EduquizSuper.Models;
+using System.ComponentModel.DataAnnotations;
 
-namespace DisCourse.Models
+namespace EduquizSuper.Models
 {
     public class Course
     {
         [Key]
-        public int Id { get; set; }
-
-        [Required, MaxLength(200)]
-        public string Name { get; set; } // Tên khóa học
-
-        [Required, MaxLength(500)]
-        public string Description { get; set; } // Mô tả khóa học
-
-        public string? Thumbnail { get; set; } // Ảnh đại diện khóa học
-
-        public DateTime CreatedAt { get; set; } 
+        public string CourseId { get; set; }
 
         [Required]
-        public string OwnerID { get; set; }
+        public string CourseName { get; set; }
 
-        [ForeignKey("OwnerID")]
-        public IdentityUser Owner { get; set; }
+        public string Description { get; set; }
 
-        // Khóa học có nhiều bài viết (1-N)
-        public ICollection<Post> Posts { get; set; } = new List<Post>();
+        // Navigation properties
+        public List<User> Users { get; set; } = new List<User>();
+        public List<Subject> Subjects { get; set; } = new List<Subject>();
     }
 }

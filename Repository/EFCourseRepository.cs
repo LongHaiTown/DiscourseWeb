@@ -1,44 +1,54 @@
-﻿using DisCourse.Models;
+﻿using EduquizSuper.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
-namespace DisCourse.Repository
+namespace EduquizSuper.Data
 {
     public class EFCourseRepository : ICourseRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly EduquizContextDb _context;
 
-        public EFCourseRepository(ApplicationDbContext context)
+        public EFCourseRepository(EduquizContextDb context)
         {
             _context = context;
         }
-
         public async Task<IEnumerable<Course>> GetAllAsync()
         {
             return await _context.Courses.ToListAsync();
         }
-
-        public async Task<Course> GetByIdAsync(int id)
+        public async Task<PaginatedList<Course>> GetCoursesAsync(string searchString, int pageNumber, int pageSize)
         {
-            return await _context.Courses
-                .Include(p => p.Owner) // Load User
-                .FirstOrDefaultAsync(p => p.Id == id);
+            var courses = _context.Courses.AsQueryable();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                courses = courses.Where(c => c.CourseName.Contains(searchString));
+            }
+            return await PaginatedList<Course>.CreateAsync(courses.AsNoTracking(), pageNumber, pageSize);
         }
 
-        public async Task AddAsync(Course course)
+        public async Task<Course> GetCourseByIdAsync(string id)
+        {
+            return await _context.Courses.FindAsync(id);
+        }
+
+        public async Task AddCourseAsync(Course course)
         {
             _context.Courses.Add(course);
             await _context.SaveChangesAsync();
         }
-
-        public async Task UpdateAsync(Course course)
+        public async Task<bool> ExistsAsync(string id)
+        {
+            return await _context.Courses.AnyAsync(e => e.CourseId == id);
+        }
+        public async Task UpdateCourseAsync(Course course)
         {
             _context.Courses.Update(course);
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteCourseAsync(string id)
         {
             var course = await _context.Courses.FindAsync(id);
             if (course != null)
@@ -47,12 +57,10 @@ namespace DisCourse.Repository
                 await _context.SaveChangesAsync();
             }
         }
-        public async Task<IEnumerable<Post>> GetPostsByCourseIdAsync(int courseId)
+
+        public async Task<bool> CourseExistsAsync(string id)
         {
-            return await _context.Posts
-                .Where(p => p.CourseId == courseId)
-                .Include(p => p.Author) // Load thông tin Author của bài viết
-                .ToListAsync();
+            return await _context.Courses.AnyAsync(e => e.CourseId == id);
         }
     }
 }

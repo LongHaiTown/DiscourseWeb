@@ -1,0 +1,163 @@
+﻿@* @{ *@
+@*     ViewData["Title"] = "Quản lý câu hỏi bài thi"; *@
+@*     var exam = ViewData["Exam"] as EduquizSuper.Models.Exam; *@
+@*     var questions = ViewData["Questions"] as List<EduquizSuper.Models.Question>; *@
+@*     var selectedQuestionIds = ViewData["SelectedQuestionIds"] as List<string>; *@
+@* } *@
+
+@* <h1>Quản lý câu hỏi bài thi</h1> *@
+
+@* <div class="card mb-4"> *@
+@*     <div class="card-header bg-primary text-white"> *@
+@*         <h4>@exam.ExamName</h4> *@
+@*     </div> *@
+@*     <div class="card-body"> *@
+@*         <div class="row"> *@
+@*             <div class="col-md-6"> *@
+@*                 <dl class="row"> *@
+@*                     <dt class="col-sm-4">Môn học:</dt> *@
+@*                     <dd class="col-sm-8">@exam.Subject.SubjectName</dd> *@
+
+@*                     <dt class="col-sm-4">Thời gian:</dt> *@
+@*                     <dd class="col-sm-8">@exam.StartTime.ToString("dd/MM/yyyy HH:mm") - @exam.EndTime.ToString("dd/MM/yyyy HH:mm")</dd> *@
+@*                 </dl> *@
+@*             </div> *@
+@*             <div class="col-md-6"> *@
+@*                 <dl class="row"> *@
+@*                     <dt class="col-sm-4">Số câu hỏi:</dt> *@
+@*                     <dd class="col-sm-8">@exam.NumberOfQuestions</dd> *@
+
+@*                     <dt class="col-sm-4">Tổng điểm:</dt> *@
+@*                     <dd class="col-sm-8">@exam.TotalScore</dd> *@
+@*                 </dl> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@* </div> *@
+
+@* @if (TempData["SuccessMessage"] != null) *@
+@* { *@
+@*     <div class="alert alert-success"> *@
+@*         @TempData["SuccessMessage"] *@
+@*     </div> *@
+@* } *@
+
+@* @if (TempData["ErrorMessage"] != null) *@
+@* { *@
+@*     <div class="alert alert-danger"> *@
+@*         @TempData["ErrorMessage"] *@
+@*     </div> *@
+@* } *@
+
+@* <div class="row mb-4"> *@
+@*     <div class="col-md-6"> *@
+@*         <div class="card"> *@
+@*             <div class="card-header bg-info text-white"> *@
+@*                 <h5>Tạo câu hỏi ngẫu nhiên</h5> *@
+@*             </div> *@
+@*             <div class="card-body"> *@
+@*                 <form asp-action="GenerateRandomQuestions" method="post"> *@
+@*                     <input type="hidden" name="examId" value="@exam.ExamId" /> *@
+@*                     <div class="form-group mb-3"> *@
+@*                         <label for="numberOfQuestions">Số lượng câu hỏi:</label> *@
+@*                         <input type="number" id="numberOfQuestions" name="numberOfQuestions" class="form-control" min="1" value="10" /> *@
+@*                     </div> *@
+@*                     <button type="submit" class="btn btn-primary">Tạo ngẫu nhiên</button> *@
+@*                 </form> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@*     <div class="col-md-6"> *@
+@*         <div class="card"> *@
+@*             <div class="card-header bg-success text-white"> *@
+@*                 <h5>Thao tác</h5> *@
+@*             </div> *@
+@*             <div class="card-body"> *@
+@*                 <a asp-action="Details" asp-route-id="@exam.ExamId" class="btn btn-info">Xem chi tiết bài thi</a> *@
+@*                 <a asp-action="Edit" asp-route-id="@exam.ExamId" class="btn btn-primary">Sửa thông tin bài thi</a> *@
+@*                 <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a> *@
+@*             </div> *@
+@*         </div> *@
+@*     </div> *@
+@* </div> *@
+
+@* <div class="card"> *@
+@*     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center"> *@
+@*         <h4>Danh sách câu hỏi</h4> *@
+@*         <div> *@
+@*             <button id="selectAllBtn" class="btn btn-light btn-sm">Chọn tất cả</button> *@
+@*             <button id="deselectAllBtn" class="btn btn-light btn-sm">Bỏ chọn tất cả</button> *@
+@*         </div> *@
+@*     </div> *@
+@*     <div class="card-body"> *@
+@*         @if (questions != null && questions.Any()) *@
+@*         { *@
+@*             <form asp-action="UpdateExamQuestions" method="post"> *@
+@*                 <input type="hidden" name="examId" value="@exam.ExamId" /> *@
+@*                 <div class="table-responsive"> *@
+@*                     <table class="table table-striped" id="questionsTable"> *@
+@*                         <thead> *@
+@*                             <tr> *@
+@*                                 <th style="width: 50px;">Chọn</th> *@
+@*                                 <th>Nội dung câu hỏi</th> *@
+@*                                 <th>Loại câu hỏi</th> *@
+@*                                 <th>Mức độ</th> *@
+@*                             </tr> *@
+@*                         </thead> *@
+@*                         <tbody> *@
+@*                             @foreach (var question in questions) *@
+@*                             { *@
+@*                                 bool isSelected = selectedQuestionIds != null && selectedQuestionIds.Contains(question.QuestionId); *@
+@*                                 <tr> *@
+@*                                     <td> *@
+@*                                         <div class="form-check"> *@
+@*                                             <input type="checkbox" name="selectedQuestions" value="@question.QuestionId" *@
+@*                                                    class="form-check-input question-checkbox" *@
+@*                                             @(isSelected ? "checked" : "") /> *@
+@*                                         </div> *@
+@*                                     </td> *@
+@*                                     <td>@question.QuestionContent</td> *@
+@*                                     <td>@question.QuestionType</td> *@
+@*                                     <td>@question.Level</td> *@
+@*                                 </tr> *@
+@*                             } *@
+@*                         </tbody> *@
+@*                     </table> *@
+@*                 </div> *@
+@*                 <div class="mt-3"> *@
+@*                     <button type="submit" class="btn btn-success">Lưu danh sách câu hỏi</button> *@
+@*                 </div> *@
+@*             </form> *@
+@*         } *@
+@*         else *@
+@*         { *@
+@*             <div class="alert alert-warning"> *@
+@*                 Không có câu hỏi nào cho môn học này. Vui lòng thêm câu hỏi cho môn học trước. *@
+@*             </div> *@
+@*         } *@
+@*     </div> *@
+@* </div> *@
+
+@* @section Scripts { *@
+@*     <script> *@
+@*         $(document).ready(function() { *@
+@*             // Chức năng chọn tất cả *@
+@*             $("#selectAllBtn").click(function() { *@
+@*                 $(".question-checkbox").prop("checked", true); *@
+@*             }); *@
+
+@*             // Chức năng bỏ chọn tất cả *@
+@*             $("#deselectAllBtn").click(function() { *@
+@*                 $(".question-checkbox").prop("checked", false); *@
+@*             }); *@
+
+@*             // Thêm chức năng tìm kiếm *@
+@*             $("#searchInput").on("keyup", function() { *@
+@*                 var value = $(this).val().toLowerCase(); *@
+@*                 $("#questionsTable tbody tr").filter(function() { *@
+@*                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1) *@
+@*                 }); *@
+@*             }); *@
+@*         }); *@
+@*     </script> *@
+@* } *@

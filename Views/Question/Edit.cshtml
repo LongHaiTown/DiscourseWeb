@@ -1,0 +1,161 @@
+﻿@model EduquizSuper.Models.Question
+@{
+    ViewData["Title"] = "Sửa câu hỏi";
+    var answers = ViewData["Answers"] as List<dynamic>;
+}
+
+<h1>Sửa câu hỏi</h1>
+
+<form asp-action="Edit" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="QuestionId" />
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        <label asp-for="QuestionContent" class="control-label">Nội dung câu hỏi</label>
+        <textarea asp-for="QuestionContent" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="QuestionContent" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="SubjectId" class="control-label">Môn học</label>
+        <select asp-for="SubjectId" class="form-control" asp-items="@(ViewData["SubjectId"] as SelectList)">
+            <option value="">Chọn môn học</option>
+        </select>
+        <span asp-validation-for="SubjectId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Difficulty" class="control-label">Độ khó</label>
+        <select asp-for="Difficulty" class="form-control" asp-items="@(new SelectList(ViewData["DifficultyLevels"] as List<string>))">
+            <option value="">Chọn độ khó</option>
+        </select>
+        <span asp-validation-for="Difficulty" class="text-danger"></span>
+    </div>
+
+    <h4>Danh sách đáp án</h4>
+    <div id="answers-container">
+        @if (answers != null && answers.Any())
+        {
+            @for (int i = 0; i < answers.Count; i++)
+            {
+                <div class="form-group answer-row">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label class="control-label">Đáp án @(i + 1)</label>
+                            <input type="text" name="answerTexts" class="form-control" value="@answers[i].content" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="control-label">Đúng</label>
+                            @{
+                                bool isCorrect = false;
+                                try
+                                {
+                                    isCorrect = Convert.ToBoolean(answers[i].isCorrect);
+                                }
+                                catch { }
+                            }
+                            <input type="checkbox" name="isCorrect[]" value="@i" @(isCorrect ? "checked" : "") />
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-danger remove-answer mt-4">Xóa</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="form-group answer-row">
+                <div class="row">
+                    <div class="col-md-8">
+                        <label class="control-label">Đáp án 1</label>
+                        <input type="text" name="answerTexts" class="form-control" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="control-label">Đúng</label>
+                        <input type="checkbox" name="isCorrect[]" value="0" />
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-danger remove-answer mt-4">Xóa</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group answer-row">
+                <div class="row">
+                    <div class="col-md-8">
+                        <label class="control-label">Đáp án 2</label>
+                        <input type="text" name="answerTexts" class="form-control" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="control-label">Đúng</label>
+                        <input type="checkbox" name="isCorrect[]" value="0" />
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-danger remove-answer mt-4">Xóa</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <button type="button" id="add-answer" class="btn btn-success mb-3">Thêm đáp án</button>
+
+    <div class="form-group">
+        <input type="submit" value="Lưu" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            let answerCount = $('.answer-row').length;
+
+            $('#add-answer').click(function () {
+                const newAnswerHtml = `
+                <div class="form-group answer-row">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label class="control-label">Đáp án ${answerCount + 1}</label>
+                            <input type="text" name="answerTexts" class="form-control" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="control-label">Đúng</label>
+                            <input type="checkbox" name="isCorrect[]" value="${answerCount}" />
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-danger remove-answer mt-4">Xóa</button>
+                        </div>
+                    </div>
+                </div>`;
+                $('#answers-container').append(newAnswerHtml);
+                answerCount++;
+            });
+
+            $(document).on('click', '.remove-answer', function () {
+                if ($('.answer-row').length > 2) {
+                    $(this).closest('.answer-row').remove();
+                    // Update the labels to keep them sequential
+                    $('.answer-row').each(function (index) {
+                        $(this).find('label.control-label').first().text(`Đáp án ${index + 1}`);
+                    });
+                    answerCount--;
+                } else {
+                    alert('Câu hỏi phải có ít nhất 2 đáp án.');
+                }
+            });
+
+            $('form').submit(function() {
+                if ($('input[type="checkbox"][name="isCorrect[]"]:checked').length === 0) {
+                    alert('Phải có ít nhất một đáp án đúng!');
+                    return false;
+                }
+                return true;
+            });
+        });
+    </script>
+}

@@ -1,0 +1,126 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\hthan\\source\\repos\\DiscourseWeb\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{325DC578-5E5C-4B4B-96AB-15596E1EB9E9}|DisCourseW.csproj|c:\\users\\hthan\\source\\repos\\discourseweb\\areas\\teacher\\views\\course\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{325DC578-5E5C-4B4B-96AB-15596E1EB9E9}|DisCourseW.csproj|solutionrelative:areas\\teacher\\views\\course\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{325DC578-5E5C-4B4B-96AB-15596E1EB9E9}|DisCourseW.csproj|c:\\users\\hthan\\source\\repos\\discourseweb\\views\\course\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{325DC578-5E5C-4B4B-96AB-15596E1EB9E9}|DisCourseW.csproj|solutionrelative:views\\course\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{325DC578-5E5C-4B4B-96AB-15596E1EB9E9}|DisCourseW.csproj|c:\\users\\hthan\\source\\repos\\discourseweb\\areas\\teacher\\views\\course\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{325DC578-5E5C-4B4B-96AB-15596E1EB9E9}|DisCourseW.csproj|solutionrelative:areas\\teacher\\views\\course\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{325DC578-5E5C-4B4B-96AB-15596E1EB9E9}|DisCourseW.csproj|c:\\users\\hthan\\source\\repos\\discourseweb\\areas\\teacher\\views\\course\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{325DC578-5E5C-4B4B-96AB-15596E1EB9E9}|DisCourseW.csproj|solutionrelative:areas\\teacher\\views\\course\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{325DC578-5E5C-4B4B-96AB-15596E1EB9E9}|DisCourseW.csproj|c:\\users\\hthan\\source\\repos\\discourseweb\\areas\\teacher\\controllers\\coursecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{325DC578-5E5C-4B4B-96AB-15596E1EB9E9}|DisCourseW.csproj|solutionrelative:areas\\teacher\\controllers\\coursecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{325DC578-5E5C-4B4B-96AB-15596E1EB9E9}|DisCourseW.csproj|c:\\users\\hthan\\source\\repos\\discourseweb\\areas\\teacher\\views\\course\\delete.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{325DC578-5E5C-4B4B-96AB-15596E1EB9E9}|DisCourseW.csproj|solutionrelative:areas\\teacher\\views\\course\\delete.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Details.cshtml",
+              "DocumentMoniker": "C:\\Users\\hthan\\source\\repos\\DiscourseWeb\\Areas\\Teacher\\Views\\Course\\Details.cshtml",
+              "RelativeDocumentMoniker": "Areas\\Teacher\\Views\\Course\\Details.cshtml",
+              "ToolTip": "C:\\Users\\hthan\\source\\repos\\DiscourseWeb\\Areas\\Teacher\\Views\\Course\\Details.cshtml",
+              "RelativeToolTip": "Areas\\Teacher\\Views\\Course\\Details.cshtml",
+              "ViewState": "AgIAAD8BAAAAAAAAAAApwD4BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-04-06T07:19:03.344Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\hthan\\source\\repos\\DiscourseWeb\\Areas\\Teacher\\Views\\Course\\Index.cshtml",
+              "RelativeDocumentMoniker": "Areas\\Teacher\\Views\\Course\\Index.cshtml",
+              "ToolTip": "C:\\Users\\hthan\\source\\repos\\DiscourseWeb\\Areas\\Teacher\\Views\\Course\\Index.cshtml",
+              "RelativeToolTip": "Areas\\Teacher\\Views\\Course\\Index.cshtml",
+              "ViewState": "AgIAABcBAAAAAAAAAAAAAPkAAABNAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-04-06T07:06:44.027Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "C:\\Users\\hthan\\source\\repos\\DiscourseWeb\\Areas\\Teacher\\Views\\Course\\Create.cshtml",
+              "RelativeDocumentMoniker": "Areas\\Teacher\\Views\\Course\\Create.cshtml",
+              "ToolTip": "C:\\Users\\hthan\\source\\repos\\DiscourseWeb\\Areas\\Teacher\\Views\\Course\\Create.cshtml",
+              "RelativeToolTip": "Areas\\Teacher\\Views\\Course\\Create.cshtml",
+              "ViewState": "AgIAAEEAAAAAAAAAAAAgwEwAAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-04-06T07:01:39.759Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Delete.cshtml",
+              "DocumentMoniker": "C:\\Users\\hthan\\source\\repos\\DiscourseWeb\\Areas\\Teacher\\Views\\Course\\Delete.cshtml",
+              "RelativeDocumentMoniker": "Areas\\Teacher\\Views\\Course\\Delete.cshtml",
+              "ToolTip": "C:\\Users\\hthan\\source\\repos\\DiscourseWeb\\Areas\\Teacher\\Views\\Course\\Delete.cshtml",
+              "RelativeToolTip": "Areas\\Teacher\\Views\\Course\\Delete.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-04-06T07:01:37.784Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "CourseController.cs",
+              "DocumentMoniker": "C:\\Users\\hthan\\source\\repos\\DiscourseWeb\\Areas\\Teacher\\Controllers\\CourseController.cs",
+              "RelativeDocumentMoniker": "Areas\\Teacher\\Controllers\\CourseController.cs",
+              "ToolTip": "C:\\Users\\hthan\\source\\repos\\DiscourseWeb\\Areas\\Teacher\\Controllers\\CourseController.cs",
+              "RelativeToolTip": "Areas\\Teacher\\Controllers\\CourseController.cs",
+              "ViewState": "AgIAAJoAAAAAAAAAAADwvwAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-06T07:01:26.863Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Details.cshtml",
+              "DocumentMoniker": "C:\\Users\\hthan\\source\\repos\\DiscourseWeb\\Views\\Course\\Details.cshtml",
+              "RelativeDocumentMoniker": "Views\\Course\\Details.cshtml",
+              "ToolTip": "C:\\Users\\hthan\\source\\repos\\DiscourseWeb\\Views\\Course\\Details.cshtml",
+              "RelativeToolTip": "Views\\Course\\Details.cshtml",
+              "ViewState": "AgIAAG4AAAAAAAAAAAAgwIcAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-04-06T06:24:04.427Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

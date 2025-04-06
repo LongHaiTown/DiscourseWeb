@@ -1,67 +1,115 @@
-﻿// Views/Home/Index.cshtml - Main landing page
-@model List<Post>
+﻿@model PaginatedList<EduquizSuper.Models.Course>
+@{
+    ViewData["Title"] = "Trang chủ";
+}
 
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold mb-4">Discover Knowledge</h1>
-        <p class="text-lg text-gray-600">Explore articles from various courses or browse by topics</p>
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Khóa học trực tuyến</h2>
+            <p class="text-center lead">Chào mừng đến với hệ thống thi trắc nghiệm EduquizSuper. Hãy chọn khóa học để bắt đầu.</p>
+        </div>
     </div>
 
-    <h2 class="text-2xl font-semibold mb-4">Featured Articles</h2>
-
-    @if (Model == null || !Model.Any())
-    {
-        <div class="bg-white rounded-lg shadow-md p-6 mb-4 text-gray-600 text-center">
-            <p>There are no articles to display at the moment. Check back later!</p>
+    <!-- Tìm kiếm và lọc -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form asp-action="Index" method="get">
+                <div class="input-group">
+                    <input type="text" name="searchString" class="form-control" placeholder="Tìm kiếm khóa học..." value="@ViewBag.CurrentFilter" />
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
         </div>
-    }
-    else
-    {
-        @foreach (var article in Model.Take(5))
+        <div class="col-md-6">
+            <div class="d-flex justify-content-md-end">
+                <select class="form-select" style="max-width: 200px;">
+                    <option selected>Tất cả</option>
+                    <option>Mới nhất</option>
+                    <option>Phổ biến nhất</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sách khóa học -->
+    <div class="row">
+        @if (Model != null && Model.Any())
         {
-            <div class="bg-white rounded-lg shadow-md p-6 mb-4 transition-transform hover:scale-[1.01]">
-                <div class="flex items-center mb-4">
-                    <img src="" alt="" class="w-10 h-10 rounded-full mr-4">
-                    <div>
-                        <p class="font-medium">@article.Author.UserName</p>
-                        <p class="text-sm text-gray-500">@article.CreatedAt.ToShortDateString()</p>
+            @foreach (var course in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card course-card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@course.CourseName</h5>
+                            <span class="badge bg-primary">@course.Subjects.Count môn học</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">@course.Description</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-users me-1"></i> @course.Users.Count học viên
+                                </small>
+                                <small class="text-muted">
+                                    <i class="fas fa-book me-1"></i> @course.Subjects.Count môn học
+                                </small>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="@Url.Action("Details", "Course", new { id = course.CourseId })" class="btn btn-primary w-100">Xem chi tiết</a>
+                        </div>
                     </div>
                 </div>
-                <img src="" alt="@article.Title" class="w-full h-48 object-cover rounded-lg mb-4">
-
-                @* @if (!string.IsNullOrEmpty(article.ThumbnailUrl)) *@
-                @* { *@
-                @*     <img src="" alt="@article.Title" class="w-full h-48 object-cover rounded-lg mb-4"> *@
-                @* } *@
-
-                <h3 class="text-xl font-semibold mb-2">
-                    <a asp-controller="Articles" asp-action="Details" asp-route-id="@article.Id" class="hover:text-blue-600">
-                        @article.Title
-                    </a>
-                </h3>
-
-                <p class="text-gray-700 mb-4">God is a woman</p>
-
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        @* <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2"> *@
-                        @*     @article.PrimaryCategoryName *@
-                        @* </span> *@
-                        @if (article.CourseId != null)
-                        {
-                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                                <a asp-controller="Courses" asp-action="Details" asp-route-id="@article.CourseId">
-                                    @article.Course.Name
-                                </a>
-                            </span>
-                        }
-                    </div>
-                    <div class="text-gray-500 text-sm">
-                        <span>20</span>
-                    </div>
-                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center">
+                <p>Chưa có khóa học nào được tạo.</p>
             </div>
         }
-    }
+    </div>
 
+    <!-- Phân trang -->
+    @if (Model != null && Model.Any())
+    {
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                @if (Model.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageIndex - 1, searchString = ViewBag.CurrentFilter })">Trước</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Trước</a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { pageNumber = i, searchString = ViewBag.CurrentFilter })">@i</a>
+                    </li>
+                }
+
+                @if (Model.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { pageNumber = Model.PageIndex + 1, searchString = ViewBag.CurrentFilter })">Tiếp</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Tiếp</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
 </div>

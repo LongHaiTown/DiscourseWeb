@@ -1,240 +1,118 @@
-﻿using DisCourse.Models;
-using DisCourse.Repository;
-using Microsoft.AspNetCore.Hosting;
+﻿using EduquizSuper.Data;
+using EduquizSuper.Models;
+using EduquizSuper.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
-using System.Security.Claims;
-using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Http.HttpResults;
-using DisCourseW.Repository;
-namespace DisCourse.Controllers
+namespace EduquizSuper.Controllers
 {
+    [Authorize(Roles = "Admin,Teacher")]
     public class CourseController : Controller
     {
         private readonly ICourseRepository _courseRepository;
-        private readonly ILogger<PostController> _logger;
-        private readonly IUserRepository _userRepository;
-        private readonly IUserCourseRepository _userCourseRepository;
 
-        public CourseController(ICourseRepository courseRepository, ILogger<PostController> logger, 
-            IUserRepository userRepository, IUserCourseRepository userCourseRepository)
+        public CourseController(ICourseRepository courseRepository)
         {
             _courseRepository = courseRepository;
-            _logger = logger;
-            _userRepository = userRepository;
-            _userCourseRepository = userCourseRepository;
         }
 
-        // 📌 Hiển thị danh sách Course
-        public async Task<IActionResult> Index()
+        // GET: Course
+        public async Task<IActionResult> Index(string searchString, int? pageNumber)
         {
-            var courses = await _courseRepository.GetAllAsync();
+            var pageSize = 10;
+            var courses = await _courseRepository.GetCoursesAsync(searchString, pageNumber ?? 1, pageSize);
             return View(courses);
         }
 
-        // 📌 Hiển thị chi tiết một Course
-        public async Task<IActionResult> Details(int id)
+        // GET: Course/Details/5
+        public async Task<IActionResult> Details(string id)
         {
-            var course = await _courseRepository.GetByIdAsync(id);
-            if (course == null)
-            {
-                return NotFound();
-            }
-            var posts = await _courseRepository.GetPostsByCourseIdAsync(id);
-            var viewModel = new CourseDetailViewModel
-            {
-                Course = course,
-                Posts = posts
-            };
-
-            return View(viewModel);
+            if (id == null) return NotFound();
+            var course = await _courseRepository.GetCourseByIdAsync(id);
+            if (course == null) return NotFound();
+            return View(course);
         }
 
-        // 📌 Hiển thị form tạo Course
+        // GET: Course/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // 📌 Xử lý tạo Course
-        [HttpPost]
-        public async Task<IActionResult> Create(Course course, IFormFile? ThumbnailFile)
-        {
-            // Lấy ID của User đang đăng nhập
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null) return Unauthorized(); // Nếu chưa đăng nhập, từ chối yêu cầu
-
-            if (ThumbnailFile != null)
-            {
-                course.Thumbnail = await SaveImage(ThumbnailFile);
-            }
-
-            // Gán UserID cho bài viết
-            course.OwnerID = userId;
-            course.CreatedAt = DateTime.UtcNow;
-            await _courseRepository.AddAsync(course);
-            return RedirectToAction(nameof(Index));
-        }
-
-        // Hàm lưu ảnh vào thư mục wwwroot/images
-        private async Task<string?> SaveImage(IFormFile? imageFile)
-        {
-            if (imageFile == null || imageFile.Length == 0)
-                return null; // Trả về null nếu không có file
-
-            var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-
-            // Tạo thư mục nếu chưa có
-            if (!Directory.Exists(uploadFolder))
-            {
-                Directory.CreateDirectory(uploadFolder);
-            }
-
-            // Tạo tên file duy nhất
-            var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
-            var filePath = Path.Combine(uploadFolder, uniqueFileName);
-
-            // Lưu file vào thư mục
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                await imageFile.CopyToAsync(fileStream);
-            }
-
-            return "/images/" + uniqueFileName; // Trả về đường dẫn lưu vào database
-        }
-        // GET: Hiển thị form chỉnh sửa
-        public async Task<IActionResult> Edit(int id)
-        {
-            var course = await _courseRepository.GetByIdAsync(id);
-            if (course == null)
-            {
-                return NotFound();
-            }
-            return View(course);
-        }
-
-        // POST: Cập nhật thông tin khóa học
+        // POST: Course/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Course course, IFormFile? ThumbnailFile)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create([Bind("CourseId,CourseName,Description")] Course course)
         {
-            if (id != course.Id)
+            if (await _courseRepository.CourseExistsAsync(course.CourseId))
             {
-                return NotFound();
+                ModelState.AddModelError("CourseId", "Mã khóa học đã tồn tại. Vui lòng chọn mã khác.");
             }
 
-            // Nếu có ảnh mới được upload, lưu ảnh và cập nhật đường dẫn
-            if (ThumbnailFile != null)
+            if (ModelState.IsValid)
             {
-                var imagePath = await SaveImage(ThumbnailFile);
-                course.Thumbnail = imagePath;
-            }
-            _logger.LogInformation($"OwnerID của khóa học: {course.OwnerID}");
-            await _courseRepository.UpdateAsync(course);
-            return RedirectToAction(nameof(Index));
-        }
-
-        // 📌 Hiển thị form xác nhận xóa
-        public async Task<IActionResult> Delete(int id)
-        {
-            var course = await _courseRepository.GetByIdAsync(id);
-            if (course == null)
-            {
-                return NotFound();
+                await _courseRepository.AddCourseAsync(course);
+                return RedirectToAction(nameof(Index));
             }
             return View(course);
         }
 
-        // 📌 Xử lý xóa Course
+        // GET: Course/Edit/5
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (id == null) return NotFound();
+            var course = await _courseRepository.GetCourseByIdAsync(id);
+            if (course == null) return NotFound();
+            return View(course);
+        }
+
+        // POST: Course/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(string id, [Bind("CourseId,CourseName,Description")] Course course)
+        {
+            if (id != course.CourseId) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await _courseRepository.UpdateCourseAsync(course);
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await _courseRepository.CourseExistsAsync(course.CourseId)) return NotFound();
+                    throw;
+                }
+            }
+            return View(course);
+        }
+
+        // GET: Course/Delete/5
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            if (id == null) return NotFound();
+            var course = await _courseRepository.GetCourseByIdAsync(id);
+            if (course == null) return NotFound();
+            return View(course);
+        }
+
+        // POST: Course/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            await _courseRepository.DeleteAsync(id);
+            await _courseRepository.DeleteCourseAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-        // 📌 Hiển thị form thêm user vào khóa học (Modal)
-        public async Task<IActionResult> AddUserToCourse(int courseId)
-        {
-            var course = await _courseRepository.GetByIdAsync(courseId);
-            if (course == null)
-            {
-                return NotFound();
-            }
-
-            var users = await _userRepository.GetAllUsersAsync();
-
-            var model = new UserCourseViewModel
-            {
-                Course = course,
-                Users = users.ToList()
-            };
-
-            return PartialView("_AddUserToCourseModal", model);
-        }
-        // 📌 Xử lý thêm user vào khóa học
-        [HttpPost]
-        public async Task<IActionResult> AddUserToCourseConfirm(int courseId, string userId)
-        {
-            var course = await _courseRepository.GetByIdAsync(courseId);
-
-            bool success = await _userCourseRepository.AddUserToCourseAsync(userId, courseId);
-
-            if (success)
-            {
-                TempData["SuccessMessage"] = "Thêm user vào khóa học thành công!";
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "User đã đăng ký khóa học này!";
-            }
-
-            return RedirectToAction("Details", new { id = courseId });
-        }
-        // 📌 Hiển thị danh sách User đã đăng ký trong khóa học (Gọi Modal)
-        public async Task<IActionResult> ViewRegisteredUsers(int courseId)
-        {
-            var course = await _courseRepository.GetByIdAsync(courseId);
-            if (course == null)
-            {
-                return NotFound();
-            }
-
-            var registeredUsers = await _userCourseRepository.GetUsersByCourseAsync(courseId);
-
-            var model = new UserCourseViewModel
-            {
-                Course = course,
-                Users = registeredUsers.ToList()
-            };
-
-            return PartialView("_ViewRegisteredUsersModal", model);
-        }
-        // Hàm để xóa người dùng khỏi khóa học
-        [HttpPost]
-        public async Task<IActionResult> RemoveUserFromCourse(int courseId, string userId)
-        {
-            var course = await _courseRepository.GetByIdAsync(courseId);
-            var result = await _userCourseRepository.RemoveUserFromCourseAsync(courseId, userId);
-
-            if (result)
-            {
-                TempData["SuccessMessage"] = "Người dùng đã được xóa khỏi khóa học thành công.";
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Có lỗi xảy ra khi xóa người dùng khỏi khóa học.";
-            }
-
-            var registeredUsers = await _userCourseRepository.GetUsersByCourseAsync(courseId);
-
-            var model = new UserCourseViewModel
-            {
-                Course = course,
-                Users = registeredUsers.ToList()
-            };
-
-            return RedirectToAction("Details" , new {id = courseId });
         }
     }
 }

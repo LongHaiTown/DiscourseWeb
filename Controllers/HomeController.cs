@@ -1,21 +1,36 @@
-using System.Diagnostics;
-using DisCourse.Models;
+﻿using EduquizSuper.Data;
+using EduquizSuper.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
-namespace DisCourse.Controllers
+namespace EduquizSuper.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly EduquizContextDb _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(EduquizContextDb context)
         {
-            _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(int? pageNumber)
         {
-            return View();
+            int pageSize = 6; // Số khóa học hiển thị trên mỗi trang
+            var coursesQuery = _context.Courses
+                .Include(c => c.Subjects)
+                .Include(c => c.Users)
+                .AsNoTracking();
+
+            var pagedCourses = await PaginatedList<Course>.CreateAsync(
+                coursesQuery, pageNumber ?? 1, pageSize);
+
+            ViewBag.PageIndex = pagedCourses.PageIndex;
+            ViewBag.TotalPages = pagedCourses.TotalPages;
+
+            return View(pagedCourses);
         }
 
         public IActionResult Privacy()

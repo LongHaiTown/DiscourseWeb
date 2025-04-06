@@ -1,17 +1,19 @@
-﻿using DisCourse.Models;
-using System.Collections.Generic;
+﻿using EduquizSuper.Models;
+using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 
-namespace DisCourse.Repository
+namespace EduquizSuper.Data
 {
     public interface ICourseRepository
     {
+        Task<PaginatedList<Course>> GetCoursesAsync(string searchString, int pageNumber, int pageSize);
+        Task<Course> GetCourseByIdAsync(string id);
+        Task AddCourseAsync(Course course);
+        Task UpdateCourseAsync(Course course);
+        Task DeleteCourseAsync(string id);
+        Task<bool> CourseExistsAsync(string id);
         Task<IEnumerable<Course>> GetAllAsync();
-        Task<Course> GetByIdAsync(int id);
-        Task AddAsync(Course course);
-        Task UpdateAsync(Course course);
-        Task DeleteAsync(int id);
-        // 🆕 Hàm mới để lấy tất cả bài viết của một khóa học
-        Task<IEnumerable<Post>> GetPostsByCourseIdAsync(int courseId);
+        Task<bool> ExistsAsync(string id);
     }
 }

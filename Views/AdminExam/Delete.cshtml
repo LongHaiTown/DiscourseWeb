@@ -1,0 +1,51 @@
+﻿@* @model EduquizSuper.Models.Exam *@
+@* @{ *@
+@*     ViewData["Title"] = "Xóa bài thi"; *@
+@* } *@
+
+@* <h1>Xác nhận xóa bài thi</h1> *@
+
+@* <div class="alert alert-danger"> *@
+@*     <h3>Bạn có chắc chắn muốn xóa bài thi này?</h3> *@
+@*     <p>Việc xóa bài thi sẽ xóa tất cả dữ liệu liên quan và không thể khôi phục.</p> *@
+@* </div> *@
+
+@* <div class="card mb-4"> *@
+@*     <div class="card-header bg-primary text-white"> *@
+@*         <h4>Thông tin bài thi</h4> *@
+@*     </div> *@
+@*     <div class="card-body"> *@
+@*         <dl class="row"> *@
+@*             <dt class="col-sm-3">Mã bài thi:</dt> *@
+@*             <dd class="col-sm-9">@Model.ExamId</dd> *@
+
+@*             <dt class="col-sm-3">Tên bài thi:</dt> *@
+@*             <dd class="col-sm-9">@Model.ExamName</dd> *@
+
+@*             <dt class="col-sm-3">Môn học:</dt> *@
+@*             <dd class="col-sm-9">@Model.Subject.SubjectName</dd> *@
+
+@*             <dt class="col-sm-3">Thời gian bắt đầu:</dt> *@
+@*             <dd class="col-sm-9">@Model.StartTime.ToString("dd/MM/yyyy HH:mm")</dd> *@
+
+@*             <dt class="col-sm-3">Thời gian kết thúc:</dt> *@
+@*             <dd class="col-sm-9">@Model.EndTime.ToString("dd/MM/yyyy HH:mm")</dd> *@
+
+@*             <dt class="col-sm-3">Số câu hỏi:</dt> *@
+@*             <dd class="col-sm-9">@Model.NumberOfQuestions</dd> *@
+
+@*             <dt class="col-sm-3">Tổng điểm:</dt> *@
+@*             <dd class="col-sm-9">@Model.TotalScore</dd> *@
+
+@*             <dt class="col-sm-3">Người quản lý:</dt> *@
+@*             <dd class="col-sm-9">@Model.Manager.UserName</dd> *@
+@*         </dl> *@
+@*     </div> *@
+@*     <div class="card-footer"> *@
+@*         <form asp-action="Delete" method="post"> *@
+@*             <input type="hidden" asp-for="ExamId" /> *@
+@*             <button type="submit" class="btn btn-danger">Xác nhận xóa</button> *@
+@*             <a asp-action="Index" class="btn btn-secondary">Hủy</a> *@
+@*         </form> *@
+@*     </div> *@
+@* </div> *@

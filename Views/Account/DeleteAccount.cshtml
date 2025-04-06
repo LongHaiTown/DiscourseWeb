@@ -1,0 +1,60 @@
+﻿@model EduquizSuper.Models.User
+@{
+    ViewData["Title"] = "Xóa tài khoản";
+    Layout = "_Layout";
+}
+
+<div class="row justify-content-center mt-4 mb-4">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">Xác nhận xóa tài khoản</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Bạn có chắc chắn muốn xóa tài khoản này không? Hành động này không thể hoàn tác.
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-4 text-center">
+                        @if (!string.IsNullOrEmpty(Model.Avatar))
+                        {
+                            <img src="~/avatars/@Model.Avatar" class="img-thumbnail rounded-circle mb-3" alt="Avatar" style="width: 150px; height: 150px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <img src="~/images/default-avatar.png" class="img-thumbnail rounded-circle mb-3" alt="Default Avatar" style="width: 150px; height: 150px; object-fit: cover;" />
+                        }
+                    </div>
+                    <div class="col-md-8">
+                        <dl class="row">
+                            <dt class="col-sm-4">Email:</dt>
+                            <dd class="col-sm-8">@Model.Email</dd>
+
+                            <dt class="col-sm-4">Họ và tên:</dt>
+                            <dd class="col-sm-8">@Model.FullName</dd>
+
+                            <dt class="col-sm-4">Ngày sinh:</dt>
+                            <dd class="col-sm-8">@(Model.DateOfBirth.HasValue ? Model.DateOfBirth.Value.ToString("dd/MM/yyyy") : "Không có")</dd>
+
+                            <dt class="col-sm-4">Địa chỉ:</dt>
+                            <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.Address) ? "Không có" : Model.Address)</dd>
+
+                            <dt class="col-sm-4">Khóa học:</dt>
+                            <dd class="col-sm-8">@(Model.Course?.CourseName ?? "Không có")</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="ManageUsers" class="btn btn-secondary">Hủy bỏ</a>
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

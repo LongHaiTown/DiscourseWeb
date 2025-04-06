@@ -1,0 +1,102 @@
+﻿@model PaginatedList<EduquizSuper.Models.Exam>
+@{
+    ViewData["Title"] = "Quản lý bài thi";
+}
+
+<h1>Quản lý bài thi</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Tạo bài thi mới</a>
+</p>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Mã bài thi</th>
+            <th>Tên bài thi</th>
+            <th>Môn học</th>
+            <th>Thời gian bắt đầu</th>
+            <th>Thời gian kết thúc</th>
+            <th>Câu dễ</th>
+            <th>Câu trung bình</th>
+            <th>Câu khó</th>
+            <th>Tổng câu</th>
+            <th>Điểm mỗi câu</th>
+            <th>Tổng điểm</th>
+            <th>Người quản lý</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ExamId</td>
+                <td>@item.ExamName</td>
+                <td>@item.Subject.SubjectName</td>
+                <td>@item.StartTime.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@item.EndTime.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@item.EasyQuestions</td>
+                <td>@item.MediumQuestions</td>
+                <td>@item.HardQuestions</td>
+                <td>@item.NumberOfQuestions</td>
+                <td>@item.ScorePerQuestion</td>
+                <td>@item.TotalScore</td>
+                <td>@item.Manager.UserName</td>
+                <td>
+                    <div class="btn-group">
+                        <a asp-action="Details" asp-route-id="@item.ExamId" class="btn btn-info btn-sm">Chi tiết</a>
+                        <a asp-action="Edit" asp-route-id="@item.ExamId" class="btn btn-primary btn-sm">Sửa</a>
+                        <a asp-action="ManageQuestions" asp-route-id="@item.ExamId" class="btn btn-warning btn-sm">Quản lý câu hỏi</a>
+                        <a asp-action="Delete" asp-route-id="@item.ExamId" class="btn btn-danger btn-sm">Xóa</a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Phân trang giữ nguyên -->
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<div class="d-flex justify-content-center">
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item @prevDisabled">
+                <a asp-action="Index"
+                   asp-route-pageNumber="@(Model.PageIndex - 1)"
+                   class="page-link">
+                    Trước
+                </a>
+            </li>
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                    <a asp-action="Index"
+                       asp-route-pageNumber="@i"
+                       class="page-link">
+                        @i
+                    </a>
+                </li>
+            }
+            <li class="page-item @nextDisabled">
+                <a asp-action="Index"
+                   asp-route-pageNumber="@(Model.PageIndex + 1)"
+                   class="page-link">
+                    Tiếp
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>

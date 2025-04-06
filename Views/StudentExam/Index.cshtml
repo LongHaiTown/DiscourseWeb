@@ -1,0 +1,115 @@
+﻿@model PaginatedList<EduquizSuper.Models.Exam>
+@{
+    ViewData["Title"] = "Available Exams";
+    var takenExams = (List<string>)ViewData["TakenExams"];
+}
+
+<h1>Available Exams</h1>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form asp-action="Index" method="get">
+            <div class="form-row align-items-center">
+                <div class="col-auto">
+                    <label class="sr-only" for="subjectId">Subject</label>
+                    <select name="subjectId" class="form-control" asp-items="ViewBag.SubjectId">
+                        <option value="">-- All Subjects --</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Exam Name</th>
+                        <th>Subject</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Duration</th>
+                        <th>Questions</th>
+                        <th>Total Score</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var hasAttempted = takenExams.Contains(item.ExamId);
+                        <tr>
+                            <td>@item.ExamName</td>
+                            <td>@item.Subject.SubjectName</td>
+                            <td>@item.StartTime.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@item.EndTime.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@((item.EndTime - item.StartTime).TotalMinutes) minutes</td>
+                            <td>@item.NumberOfQuestions</td>
+                            <td>@item.TotalScore</td>
+                            <td>
+                                @if (hasAttempted)
+                                {
+                                    <span class="badge badge-success">Completed</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-primary">Available</span>
+                                }
+                            </td>
+                            <td>
+                                @if (hasAttempted)
+                                {
+                                    <a asp-action="Result" asp-route-id="@item.ExamId" class="btn btn-info btn-sm">View Result</a>
+                                    @if (DateTime.Now > item.EndTime)
+                                    {
+                                        <a asp-action="Review" asp-route-id="@item.ExamId" class="btn btn-secondary btn-sm">Review</a>
+                                    }
+                                }
+                                else
+                                {
+                                    <a asp-action="Start" asp-route-id="@item.ExamId" class="btn btn-primary btn-sm">Start Exam</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        @{
+            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+        }
+        <nav>
+            <ul class="pagination">
+                <li class="page-item @prevDisabled">
+                    <a asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageIndex - 1)"
+                       asp-route-subjectId="@ViewData["CurrentSubject"]"
+                       class="page-link">
+                        Previous
+                    </a>
+                </li>
+                <li class="page-item @nextDisabled">
+                    <a asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageIndex + 1)"
+                       asp-route-subjectId="@ViewData["CurrentSubject"]"
+                       class="page-link">
+                        Next
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

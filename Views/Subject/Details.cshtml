@@ -1,0 +1,50 @@
+﻿@model EduquizSuper.Models.Subject
+@{
+    ViewData["Title"] = "Chi tiết môn học";
+}
+
+<div class="container-fluid">
+    <h2 class="text-primary mb-4">@ViewData["Title"]</h2>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-4">Mã môn học</dt>
+                <dd class="col-sm-8">@Model.SubjectId</dd>
+
+                <dt class="col-sm-4">Tên môn học</dt>
+                <dd class="col-sm-8">@Model.SubjectName</dd>
+
+                <dt class="col-sm-4">Khóa học</dt>
+                <dd class="col-sm-8">@Model.Course?.CourseName</dd>
+
+                <dt class="col-sm-4">Tổng số câu hỏi</dt>
+                <dd class="col-sm-8">@Model.Questions.Count</dd>
+
+                <dt class="col-sm-4">Số câu hỏi dễ</dt>
+                <dd class="col-sm-8">@ViewData["EasyQuestionsCount"]</dd>
+
+                <dt class="col-sm-4">Số câu hỏi trung bình</dt>
+                <dd class="col-sm-8">@ViewData["MediumQuestionsCount"]</dd>
+
+                <dt class="col-sm-4">Số câu hỏi khó</dt>
+                <dd class="col-sm-8">@ViewData["HardQuestionsCount"]</dd>
+            </dl>
+
+            <div class="mt-4">
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.SubjectId" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Chỉnh sửa
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.SubjectId" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Xóa
+                    </a>
+                }
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
