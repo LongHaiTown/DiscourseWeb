@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,9 +16,12 @@ namespace DisCourse.Models
         [ForeignKey("PostId")]
         public Post Post { get; set; } // Điều hướng đến bài viết
 
-        //[ForeignKey("User")]
-        //public string? UserId { get; set; } // Cho phép null
-        //public User? User { get; set; } // Điều hướng đến User
+        [Required]
+        public string AuthorId { get; set; }
+
+        [ForeignKey("AuthorId")]
+        public IdentityUser Author { get; set; }  // Liên kết với bảng User
+
 
         [Required]
         [MaxLength(1000)]

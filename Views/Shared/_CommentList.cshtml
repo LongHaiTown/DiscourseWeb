@@ -1,20 +1,45 @@
-﻿@{
-    var comments = ViewBag.Comments as IEnumerable<DisCourse.Models.Comment>;
-}
+﻿// Views/Shared/_CommentsList.cshtml - Partial view for comments list
+@model IEnumerable<DisCourse.Models.Comment>
 
-@if (comments != null && comments.Any())
+@if (Model != null && Model.Any())
 {
-    <ul class="list-group mt-3">
-        @foreach (var comment in comments)
+    <div class="space-y-4 mb-6">
+        @foreach (var comment in Model)
         {
-            <li class="list-group-item">
-                <strong>@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</strong>
-                <p>@comment.Content</p>
-            </li>
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex items-center mb-2">
+                    <img src= "/images/default-avatar.png"
+                         alt="@(comment.Author?.UserName ?? "Người dùng ẩn danh")"
+                         class="w-8 h-8 rounded-full mr-2">
+                    <div>
+                        <div class="font-medium">@(comment.Author != null ? comment.Author.UserName : "Người dùng ẩn danh")</div>
+                        <div class="text-xs text-gray-500">@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                </div>
+                <div class="text-gray-700 pl-10">
+                    @comment.Content
+                </div>
+
+                @* @if (User.FindFirstValue(ClaimTypes.NameIdentifier) == comment.AuthorId) *@
+                @* { *@
+                @*     <div class="flex justify-end mt-2 space-x-2"> *@
+                @*         <button type="button" onclick="editComment(@comment.Id)" *@
+                @*                 class="text-xs text-blue-600 hover:underline"> *@
+                @*             Chỉnh sửa *@
+                @*         </button> *@
+                @*         <button type="button" onclick="deleteComment(@comment.Id)" *@
+                @*                 class="text-xs text-red-600 hover:underline"> *@
+                @*             Xóa *@
+                @*         </button> *@
+                @*     </div> *@
+                @* } *@
+            </div>
         }
-    </ul>
+    </div>
 }
 else
 {
-    <p class="text-muted mt-3">Chưa có bình luận nào.</p>
+    <div class="text-center py-6 text-gray-500">
+        <p>Chưa có bình luận nào.</p>
+    </div>
 }

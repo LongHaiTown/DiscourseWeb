@@ -1,8 +1,67 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿// Views/Home/Index.cshtml - Main landing page
+@model List<Post>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold mb-4">Discover Knowledge</h1>
+        <p class="text-lg text-gray-600">Explore articles from various courses or browse by topics</p>
+    </div>
+
+    <h2 class="text-2xl font-semibold mb-4">Featured Articles</h2>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="bg-white rounded-lg shadow-md p-6 mb-4 text-gray-600 text-center">
+            <p>There are no articles to display at the moment. Check back later!</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var article in Model.Take(5))
+        {
+            <div class="bg-white rounded-lg shadow-md p-6 mb-4 transition-transform hover:scale-[1.01]">
+                <div class="flex items-center mb-4">
+                    <img src="" alt="" class="w-10 h-10 rounded-full mr-4">
+                    <div>
+                        <p class="font-medium">@article.Author.UserName</p>
+                        <p class="text-sm text-gray-500">@article.CreatedAt.ToShortDateString()</p>
+                    </div>
+                </div>
+                <img src="" alt="@article.Title" class="w-full h-48 object-cover rounded-lg mb-4">
+
+                @* @if (!string.IsNullOrEmpty(article.ThumbnailUrl)) *@
+                @* { *@
+                @*     <img src="" alt="@article.Title" class="w-full h-48 object-cover rounded-lg mb-4"> *@
+                @* } *@
+
+                <h3 class="text-xl font-semibold mb-2">
+                    <a asp-controller="Articles" asp-action="Details" asp-route-id="@article.Id" class="hover:text-blue-600">
+                        @article.Title
+                    </a>
+                </h3>
+
+                <p class="text-gray-700 mb-4">God is a woman</p>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        @* <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2"> *@
+                        @*     @article.PrimaryCategoryName *@
+                        @* </span> *@
+                        @if (article.CourseId != null)
+                        {
+                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                <a asp-controller="Courses" asp-action="Details" asp-route-id="@article.CourseId">
+                                    @article.Course.Name
+                                </a>
+                            </span>
+                        }
+                    </div>
+                    <div class="text-gray-500 text-sm">
+                        <span>20</span>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
 </div>

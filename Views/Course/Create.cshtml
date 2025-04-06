@@ -6,7 +6,7 @@
 
 <h2>Thêm khóa học</h2>
 
-<form asp-controller="Course" asp-action="Create" method="post" enctype="multipart/form-data">
+<form asp-area="Teacher" asp-controller="Course" asp-action="Create" method="post" enctype="multipart/form-data">
     <div class="form-group">
         <label asp-for="Name">Tên khóa học</label>
         <input asp-for="Name" class="form-control" required />

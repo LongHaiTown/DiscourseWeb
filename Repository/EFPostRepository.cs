@@ -17,14 +17,21 @@ namespace DisCourse.Repository
         // Lấy danh sách tất cả bài viết
         public async Task<IEnumerable<Post>> GetAllAsync()
         {
-            return await _context.Posts.ToListAsync();
+            return await _context.Posts
+                .Include(p => p.Author) // Load User liên quan
+                .Include(p => p.Course) // Load Course liên quan
+                .ToListAsync();
         }
 
         // Lấy bài viết theo ID
-        public async Task<Post> GetByIdAsync(int id)
+        public async Task<Post?> GetByIdAsync(int id)
         {
-            return await _context.Posts.FindAsync(id);
+            return await _context.Posts
+                .Include(p => p.Author) // Load User liên quan
+                .Include(p => p.Course) // Load Course liên quan
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
+
 
         // Thêm bài viết mới
         public async Task AddAsync(Post post)

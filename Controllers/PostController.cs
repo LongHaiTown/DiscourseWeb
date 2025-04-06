@@ -1,11 +1,16 @@
 ﻿using DisCourse.Models;
 using DisCourse.Repository;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http; // Add this for IFormFile
+using Microsoft.AspNetCore.Http; // Thêm này cho IFormFile
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+
+using System.Security.Claims;
+using DisCourseW.Models;
+using Microsoft.AspNetCore.Authorization; // Thêm namespace này để lấy UserID
+
 
 namespace DisCourse.Controllers
 {
@@ -44,11 +49,14 @@ namespace DisCourse.Controllers
             ViewBag.Comments = comments;
 
             return View(post);
+
         }
 
         // 📌 Hiển thị form tạo bài viết
+        [Authorize]
         public async Task<IActionResult> Create()
         {
+
             ViewBag.Courses = await _courseRepository.GetAllAsync(); // Gửi danh sách Course xuống View
             return View();
         }
@@ -57,22 +65,25 @@ namespace DisCourse.Controllers
         // 📌 Xử lý tạo bài viết
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Post post)
+        public async Task<IActionResult> Create(Post post, IFormFile? ThumbnailFile)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized();
+
+            if (ThumbnailFile != null)
+            {
+                post.Thumbnail = await SaveImage(ThumbnailFile);
+            }
+
+            post.AuthorId = userId;
+
             _logger.LogInformation($"CourseId: {post.CourseId}");
 
-            //if (!ModelState.IsValid)
-            //{
-            //    ViewBag.Courses = await _courseRepository.GetAllAsync();
-            //    _logger.LogInformation($"CourseId: {post.CourseId}");
-      
-            //    return View(post);
-
-            //}
             _logger.LogInformation("Bài viết mới được tạo!");
-
             await _postRepository.AddAsync(post);
-            return RedirectToAction(nameof(Index));
+
+            // Quay lại trang trước đó
+            return Redirect(Request.Headers["Referer"].ToString());
         }
 
         // 📌 Hiển thị form chỉnh sửa bài viết
@@ -90,7 +101,6 @@ namespace DisCourse.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Post post)
         {
-            if (id != post.Id) return BadRequest();
 
             //if (!ModelState.IsValid)
             //{
@@ -98,6 +108,7 @@ namespace DisCourse.Controllers
             //    return View(post);
             //}
 
+            post.AuthorId = post.AuthorId;
             await _postRepository.UpdateAsync(post);
             return RedirectToAction(nameof(Index));
         }
@@ -121,6 +132,32 @@ namespace DisCourse.Controllers
             await _postRepository.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
+        // Hàm lưu ảnh vào thư mục wwwroot/images
+        private async Task<string?> SaveImage(IFormFile? imageFile)
+        {
+            if (imageFile == null || imageFile.Length == 0)
+                return null; // Trả về null nếu không có file
+
+            var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+
+            // Tạo thư mục nếu chưa có
+            if (!Directory.Exists(uploadFolder))
+            {
+                Directory.CreateDirectory(uploadFolder);
+            }
+
+            // Tạo tên file duy nhất
+            var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+            var filePath = Path.Combine(uploadFolder, uniqueFileName);
+
+            // Lưu file vào thư mục
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await imageFile.CopyToAsync(fileStream);
+            }
+
+            return "/images/" + uniqueFileName; // Trả về đường dẫn lưu vào database
+        }
         [HttpPost]
         public async Task<IActionResult> UploadImage(IFormFile upload) // CKEditor sends the file with parameter name 'upload'
         {
@@ -129,7 +166,7 @@ namespace DisCourse.Controllers
                 if (upload != null && upload.Length > 0)
                 {
                     // Tạo thư mục nếu chưa có
-                    var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                    var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
                     if (!Directory.Exists(uploadFolder))
                     {
                         Directory.CreateDirectory(uploadFolder);
@@ -146,7 +183,7 @@ namespace DisCourse.Controllers
                     }
 
                     // Tạo URL đầy đủ
-                    var imageUrl = $"/uploads/{fileName}"; // Use relative URL
+                    var imageUrl = $"/images/{fileName}";
 
                     // Return response in CKEditor 5 expected format
                     return Json(new
@@ -175,6 +212,46 @@ namespace DisCourse.Controllers
             }
         }
 
+        //[HttpPost("{postId}")]
+        //public async Task<IActionResult> LikePost(int postId)
+        //{
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    var likePost = new LikePost { PostId = postId, UserId = userId };
 
+        //    var result = await _likePostRepository.AddLikePostAsync(likePost);
+        //    return CreatedAtAction(nameof(LikePost), new { id = result.Id }, result);
+        //}
+
+
+        ////API for like
+        //[HttpDelete("{postId}")]
+        //public async Task<IActionResult> UnlikePost(int postId)
+        //{
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    var result = await _likePostRepository.RemoveLikePostAsync(postId, userId);
+
+        //    if (!result)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return NoContent();
+        //}
+
+        //[HttpGet("{postId}/isLiked")]
+        //public async Task<IActionResult> IsPostLiked(int postId)
+        //{
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    var isLiked = await _likePostRepository.IsPostLikedByUserAsync(postId, userId);
+
+        //    return Ok(isLiked);
+        //}
+
+        //[HttpGet("{postId}/likes")]
+        //public async Task<IActionResult> GetLikes(int postId)
+        //{
+        //    var likes = await _likePostRepository.GetLikesByPostIdAsync(postId);
+        //    return Ok(likes);
+        //}
     }
 }

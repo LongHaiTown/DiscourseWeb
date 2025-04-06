@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 
 namespace DisCourse.Models
 {
@@ -17,7 +18,13 @@ namespace DisCourse.Models
 
         public string? Thumbnail { get; set; } // Ảnh đại diện khóa học
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Ngày tạo
+        public DateTime CreatedAt { get; set; } 
+
+        [Required]
+        public string OwnerID { get; set; }
+
+        [ForeignKey("OwnerID")]
+        public IdentityUser Owner { get; set; }
 
         // Khóa học có nhiều bài viết (1-N)
         public ICollection<Post> Posts { get; set; } = new List<Post>();

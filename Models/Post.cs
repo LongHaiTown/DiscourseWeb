@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DisCourseW.Models;
+using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DisCourse.Models
@@ -11,6 +13,8 @@ namespace DisCourse.Models
         [Required, MaxLength(200)]
         public string Title { get; set; } // Tiêu đề bài viết
 
+        public string Summary { get; set; } // Tóm tắt bài viết
+
         [Required]
         public string Content { get; set; } // Nội dung (HTML từ CKEditor)
 
@@ -18,13 +22,18 @@ namespace DisCourse.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Thời gian tạo
 
-        public string? Author { get; set; } // Người viết bài
+        [Required]
+        public string AuthorId { get; set; }
+
+        [ForeignKey("AuthorId")]
+        public IdentityUser Author { get; set; }  // Liên kết với bảng User
 
         // Khóa ngoại trỏ đến Course
         public int CourseId { get; set; }
 
         [ForeignKey("CourseId")]
         public Course Course { get; set; }
+        public ICollection<LikePost> Likes { get; set; } = new List<LikePost>();
 
     }
 }

@@ -2,22 +2,27 @@
 using DisCourse.Repository;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.IO;
-using System.Threading.Tasks;
+
+using System.Security.Claims;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Http.HttpResults;
+using DisCourseW.Repository;
 namespace DisCourse.Controllers
 {
     public class CourseController : Controller
     {
         private readonly ICourseRepository _courseRepository;
+        private readonly ILogger<PostController> _logger;
+        private readonly IUserRepository _userRepository;
+        private readonly IUserCourseRepository _userCourseRepository;
 
-        public CourseController(ICourseRepository courseRepository)
+        public CourseController(ICourseRepository courseRepository, ILogger<PostController> logger, 
+            IUserRepository userRepository, IUserCourseRepository userCourseRepository)
         {
             _courseRepository = courseRepository;
+            _logger = logger;
+            _userRepository = userRepository;
+            _userCourseRepository = userCourseRepository;
         }
 
         // 📌 Hiển thị danh sách Course
@@ -35,7 +40,14 @@ namespace DisCourse.Controllers
             {
                 return NotFound();
             }
-            return View(course);
+            var posts = await _courseRepository.GetPostsByCourseIdAsync(id);
+            var viewModel = new CourseDetailViewModel
+            {
+                Course = course,
+                Posts = posts
+            };
+
+            return View(viewModel);
         }
 
         // 📌 Hiển thị form tạo Course
@@ -48,18 +60,20 @@ namespace DisCourse.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Course course, IFormFile? ThumbnailFile)
         {
-            if (ModelState.IsValid)
-            {
-                if (ThumbnailFile != null)
-                {
-                    course.Thumbnail = await SaveImage(ThumbnailFile);
-                }
+            // Lấy ID của User đang đăng nhập
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized(); // Nếu chưa đăng nhập, từ chối yêu cầu
 
-                await _courseRepository.AddAsync(course);
-                return RedirectToAction(nameof(Index));
+            if (ThumbnailFile != null)
+            {
+                course.Thumbnail = await SaveImage(ThumbnailFile);
             }
 
-            return View(course);
+            // Gán UserID cho bài viết
+            course.OwnerID = userId;
+            course.CreatedAt = DateTime.UtcNow;
+            await _courseRepository.AddAsync(course);
+            return RedirectToAction(nameof(Index));
         }
 
         // Hàm lưu ảnh vào thư mục wwwroot/images
@@ -109,18 +123,13 @@ namespace DisCourse.Controllers
                 return NotFound();
             }
 
-            if (!ModelState.IsValid)
-            {
-                return View(course);
-            }
-
             // Nếu có ảnh mới được upload, lưu ảnh và cập nhật đường dẫn
             if (ThumbnailFile != null)
             {
                 var imagePath = await SaveImage(ThumbnailFile);
                 course.Thumbnail = imagePath;
             }
-
+            _logger.LogInformation($"OwnerID của khóa học: {course.OwnerID}");
             await _courseRepository.UpdateAsync(course);
             return RedirectToAction(nameof(Index));
         }
@@ -143,6 +152,89 @@ namespace DisCourse.Controllers
         {
             await _courseRepository.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
+        }
+        // 📌 Hiển thị form thêm user vào khóa học (Modal)
+        public async Task<IActionResult> AddUserToCourse(int courseId)
+        {
+            var course = await _courseRepository.GetByIdAsync(courseId);
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+            var users = await _userRepository.GetAllUsersAsync();
+
+            var model = new UserCourseViewModel
+            {
+                Course = course,
+                Users = users.ToList()
+            };
+
+            return PartialView("_AddUserToCourseModal", model);
+        }
+        // 📌 Xử lý thêm user vào khóa học
+        [HttpPost]
+        public async Task<IActionResult> AddUserToCourseConfirm(int courseId, string userId)
+        {
+            var course = await _courseRepository.GetByIdAsync(courseId);
+
+            bool success = await _userCourseRepository.AddUserToCourseAsync(userId, courseId);
+
+            if (success)
+            {
+                TempData["SuccessMessage"] = "Thêm user vào khóa học thành công!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "User đã đăng ký khóa học này!";
+            }
+
+            return RedirectToAction("Details", new { id = courseId });
+        }
+        // 📌 Hiển thị danh sách User đã đăng ký trong khóa học (Gọi Modal)
+        public async Task<IActionResult> ViewRegisteredUsers(int courseId)
+        {
+            var course = await _courseRepository.GetByIdAsync(courseId);
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+            var registeredUsers = await _userCourseRepository.GetUsersByCourseAsync(courseId);
+
+            var model = new UserCourseViewModel
+            {
+                Course = course,
+                Users = registeredUsers.ToList()
+            };
+
+            return PartialView("_ViewRegisteredUsersModal", model);
+        }
+        // Hàm để xóa người dùng khỏi khóa học
+        [HttpPost]
+        public async Task<IActionResult> RemoveUserFromCourse(int courseId, string userId)
+        {
+            var course = await _courseRepository.GetByIdAsync(courseId);
+            var result = await _userCourseRepository.RemoveUserFromCourseAsync(courseId, userId);
+
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Người dùng đã được xóa khỏi khóa học thành công.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Có lỗi xảy ra khi xóa người dùng khỏi khóa học.";
+            }
+
+            var registeredUsers = await _userCourseRepository.GetUsersByCourseAsync(courseId);
+
+            var model = new UserCourseViewModel
+            {
+                Course = course,
+                Users = registeredUsers.ToList()
+            };
+
+            return RedirectToAction("Details" , new {id = courseId });
         }
     }
 }
