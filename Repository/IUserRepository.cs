@@ -10,6 +10,8 @@ namespace DisCourseW.Repository
         Task<IdentityUser> GetUserByIdAsync(string userId);
         Task<IEnumerable<Course>> GetCoursesByUserIdAsync(string userId);
         IEnumerable<Post> GetPostsByOwner(string userId);
-
+        Task<string> GetUserProfilePictureAsync(string userId);
+        Task<IEnumerable<Course>> GetCoursesByUserAsync(string userId);
+        Task<List<IdentityUser>> GetUsersByRoleAsync(string roleName);
     }
 }

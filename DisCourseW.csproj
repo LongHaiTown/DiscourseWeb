@@ -28,10 +28,19 @@
     <Folder Include="Areas\Teacher\Views\Course\Shared\" />
     <Folder Include="Migrations\" />
     <Folder Include="ViewModels\" />
+    <Folder Include="Views\Account\NewFolder\" />
     <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="Areas\Teacher\Views\Course\Shared\_AddUserToCourseModal.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Areas\Teacher\Views\Course\Shared\_ViewRegisteredUsersModal.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
     <Content Update="Areas\Teacher\Views\_ViewImports.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

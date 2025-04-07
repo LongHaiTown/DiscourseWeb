@@ -11,6 +11,6 @@ namespace DisCourseW.Repository
         Task<IEnumerable<(IdentityUser User, int CourseCount)>> GetTopUsersAsync(int top);
         Task<bool> AddUserToCourseAsync(string userId, int courseId);
         Task<bool> RemoveUserFromCourseAsync(int courseId, string userId);
-
+        Task<bool> IsUserEnrolledInCourseAsync(string userId, int courseId);
     }
 }

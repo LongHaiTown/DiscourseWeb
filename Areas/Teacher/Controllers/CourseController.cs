@@ -171,25 +171,25 @@ namespace DisCourseW.Areas.Teacher.Controllers
             await _courseRepository.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
-        // 📌 Hiển thị form thêm user vào khóa học (Modal)
-        public async Task<IActionResult> AddUserToCourse(int courseId)
-        {
-            var course = await _courseRepository.GetByIdAsync(courseId);
-            //if (course == null) return NotFound();
+        //// 📌 Hiển thị form thêm user vào khóa học (Modal)
+        //public async Task<IActionResult> AddUserToCourse(int courseId)
+        //{
+        //    var course = await _courseRepository.GetByIdAsync(courseId);
+        //    //if (course == null) return NotFound();
 
-            var allUsers = await _userRepository.GetAllUsersAsync();
-            var registeredUsers = await _userCourseRepository.GetUsersByCourseAsync(courseId);
-            var unregisteredUsers = allUsers.Except(registeredUsers).ToList();
+        //    var allUsers = await _userRepository.GetAllUsersAsync();
+        //    var registeredUsers = await _userCourseRepository.GetUsersByCourseAsync(courseId);
+        //    var unregisteredUsers = allUsers.Except(registeredUsers).ToList();
 
-            var model = new UserCourseViewModel
-            {
-                Course =  course,
-                RegisteredUsers = (List<Microsoft.AspNetCore.Identity.IdentityUser>)registeredUsers,
-                UnregisteredUsers = unregisteredUsers
-            };
+        //    var model = new UserCourseViewModel
+        //    {
+        //        Course =  course,
+        //        RegisteredUsers = (List<Microsoft.AspNetCore.Identity.IdentityUser>)registeredUsers,
+        //        UnregisteredUsers = unregisteredUsers
+        //    };
 
-            return PartialView("_AddUserToCourseModal", model); // Trả về partial view
-        }
+        //    return PartialView("_AddUserToCourseModal", model); // Trả về partial view
+        //}
         //// 📌 Xử lý thêm user vào khóa học
         //[HttpPost]
         //public async Task<IActionResult> AddUserToCourseConfirm(int courseId, string userId)

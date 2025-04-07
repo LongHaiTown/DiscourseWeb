@@ -66,6 +66,12 @@ namespace DisCourseW.Repository
             }
             return false;
         }
+        public async Task<bool> IsUserEnrolledInCourseAsync(string userId, int courseId)
+        {
+            // Kiểm tra xem có bản ghi nào trong bảng UserCourses khớp với userId và courseId
+            return await _context.UserCourses
+                .AnyAsync(uc => uc.UserId == userId && uc.CourseId == courseId);
+        }
 
 
     }

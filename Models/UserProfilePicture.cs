@@ -11,13 +11,10 @@ namespace DisCourseW.Models
     {
         [Key]
         public int Id { get; set; }
-
         // Khóa ngoại liên kết đến ApplicationUser
         public string UserId { get; set; }
-
         [ForeignKey("UserId")]
         public virtual IdentityUser User { get; set; }
-
         // Đường dẫn đến ảnh đại diện
         public string ProfilePictureUrl { get; set; }
     }

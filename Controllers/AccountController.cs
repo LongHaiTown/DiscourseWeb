@@ -2,6 +2,7 @@
 using DisCourse.Repository;
 using DisCourseW.Models;
 using DisCourseW.Repository;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -15,17 +16,24 @@ namespace DisCourseW.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IUserCourseRepository _userCourseRepository;
         private readonly IUserProfilePictureRepository _userProfilePictureRepository;
-
-        public AccountController(ICourseRepository courseRepository, ILogger<PostController> logger, IUserRepository userRepository,IUserCourseRepository userCourseRepository,IUserProfilePictureRepository userProfilePictureRepository)
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public AccountController(ICourseRepository courseRepository, ILogger<PostController> logger, IUserRepository userRepository,IUserCourseRepository userCourseRepository,IUserProfilePictureRepository userProfilePictureRepository,
+            UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager,
+            RoleManager<IdentityRole> roleManager)
         {
             _courseRepository = courseRepository;
             _logger = logger;
             _userRepository = userRepository;
             _userCourseRepository = userCourseRepository;
             _userProfilePictureRepository = userProfilePictureRepository;
-
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _roleManager = roleManager;
         }
-        
+
         // Hàm lưu ảnh vào thư mục wwwroot/images
         public IActionResult Index()
         {
@@ -110,7 +118,75 @@ namespace DisCourseW.Controllers
             ModelState.AddModelError("", "Không thể lưu ảnh đại diện.");
             return View("Index"); // Trả về view hiện tại với thông báo lỗi
         }
-    
 
+        [HttpGet]
+        public IActionResult CreateUser()
+        {
+            return View();
+        }
+
+        // Action POST để xử lý đăng ký và assign role "User"
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateUser(
+            [Bind("Email,Password,ConfirmPassword")]
+            RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                var user = new IdentityUser // Thay ApplicationUser bằng IdentityUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    EmailConfirmed = true
+                };
+
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("User created a new account with password.");
+
+                    // Kiểm tra và tạo role "User" nếu chưa tồn tại
+                    const string roleName = "User";
+                    if (!await _roleManager.RoleExistsAsync(roleName))
+                    {
+                        var role = new IdentityRole
+                        {
+                            Id = "83b2ac78-3263-44e2-a953-6db2b76ca0ef",
+                            Name = roleName,
+                            NormalizedName = roleName.ToUpper()
+                        };
+                        await _roleManager.CreateAsync(role);
+                    }
+
+                    // Assign role "User" cho user mới
+                    await _userManager.AddToRoleAsync(user, roleName);
+
+                    // Đăng nhập ngay sau khi đăng ký
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating user");
+                ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi khi tạo tài khoản. Vui lòng thử lại sau.");
+            }
+
+            return View(model);
+        }
     }
+
+
 }

@@ -1,183 +1,91 @@
-﻿// Views/Articles/Details.cshtml - Article detail page with CKEditor
-@model DisCourse.Models.Post
-@using System.Security.Claims
+﻿@model DisCourse.Models.Post
+@{
+    ViewData["Title"] = Model.Title;
+    var comments = ViewBag.Comments as List<DisCourse.Models.Comment>;
+    var canAccess = ViewBag.CanAccess as bool?;
+}
 
 <div class="container mx-auto px-4 py-8">
-    <div class="max-w-4xl mx-auto">
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <!-- Ảnh thumbnail nếu có -->
+    <h1 class="text-3xl font-bold mb-6">@Model.Title</h1>
+
+    @if (canAccess.HasValue && canAccess.Value)
+    {
+        <!-- Hiển thị nội dung bài viết nếu có quyền -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             @if (!string.IsNullOrEmpty(Model.Thumbnail))
             {
-                <img src="@Model.Thumbnail" alt="@Model.Title" class="w-full h-auto max-h-96 object-cover">
+                <img src="@Model.Thumbnail" alt="@Model.Title" class="w-full h-64 object-cover rounded-lg mb-4">
             }
-
-            <div class="p-6">
-                <!-- Tiêu đề và thông tin tác giả -->
-                <div class="mb-6">
-                    <h1 class="text-3xl font-bold mb-2">@Model.Title</h1>
-                    <div class="flex items-center text-gray-600 text-sm">
-                        <div class="flex items-center">
-                            <img src="/images/default-avatar.png")"
-                                 alt="@Model.Author.UserName"
-                                 class="w-8 h-8 rounded-full mr-2">
-                            <span>Đăng bởi <strong>@Model.Author.UserName</strong></span>
-                        </div>
-                        <span class="mx-2">•</span>
-                        <span>@Model.CreatedAt.ToString("dd/MM/yyyy")</span>
-
-                        @if (Model.Course != null)
-                        {
-                            <span class="mx-2">•</span>
-                            <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                <a asp-controller="Courses" asp-action="Details" asp-route-id="@Model.CourseId">
-                                    @Model.Course.Name
-                                </a>
-                            </span>
-                        }
-                    </div>
-                </div>
-                <div class="prose prose-lg max-w-none mb-8">
-                    @Html.Raw(Model.Content)
-                </div>
-                <style>
-                    .prose h1 {
-                        font-size: 2.25rem;
-                        line-height: 2.5rem;
-                        margin-bottom: 1rem;
-                    }
-
-                    .prose h2 {
-                        font-size: 1.875rem;
-                        line-height: 2.25rem;
-                        margin-bottom: 0.875rem;
-                    }
-
-                    .prose h3 {
-                        font-size: 1.5rem;
-                        line-height: 2rem;
-                        margin-bottom: 0.75rem;
-                    }
-                </style>
-                <!-- Nút thích và các hành động khác -->
-                <div class="flex items-center justify-between mt-8 border-t pt-4">
-                    <button id="like-button"
-                            class="flex items-center px-4 py-2 border border-blue-500 rounded-md hover:bg-blue-50 transition-colors"
-                            onclick="toggleLike(@Model.Id)">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                        </svg>
-                        <span id="like-status" class="text-blue-500">Thích</span> (<span id="like-count" class="text-blue-500">0</span>)
-                    </button>
-
-                    <div class="flex space-x-2">
-                        @if (User.FindFirstValue(ClaimTypes.NameIdentifier) == Model.AuthorId)
-                        {
-                            <a asp-action="Edit" asp-route-id="@Model.Id"
-                               class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors">
-                                Chỉnh sửa
-                            </a>
-                            <a asp-action="Delete" asp-route-id="@Model.Id"
-                               class="px-3 py-1 border border-red-300 text-red-600 rounded-md text-sm hover:bg-red-50 transition-colors">
-                                Xóa
-                            </a>
-                        }
-                        <a asp-action="Index"
-                           class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors">
-                            Quay lại
-                        </a>
-                    </div>
-                </div>
+            <div class="prose max-w-none">
+                @Html.Raw(Model.Content) <!-- Giả định Content là HTML -->
+            </div>
+            <div class="mt-4 text-gray-600">
+                <p>Tác giả: @Model.Author.UserName</p>
+                <p>Ngày đăng: @Model.CreatedAt.ToString("dd/MM/yyyy")</p>
             </div>
         </div>
 
-        @* <!-- Bình luận --> *@
-        <div class="bg-white rounded-lg shadow-lg mt-8 p-6">
-            <h3 class="text-xl font-semibold mb-6">Bình luận</h3>
-
-            <!-- Partial view cho danh sách bình luận -->
-            @await Html.PartialAsync("_CommentList", ViewBag.Comments as IEnumerable<DisCourse.Models.Comment>)
-
-            <!-- Partial view cho form thêm bình luận -->
-            @await Html.PartialAsync("_CommentForm", new DisCourse.Models.Comment { PostId = Model.Id })
+        <!-- Hiển thị bình luận -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-semibold mb-4">Bình luận</h2>
+            @if (comments != null && comments.Any())
+            {
+                <ul class="space-y-4">
+                    @foreach (var comment in comments)
+                    {
+                        <li class="border-b pb-4">
+                            <p class="font-medium">@comment.Author.UserName</p>
+                            <p class="text-gray-600">@comment.Content</p>
+                            <p class="text-sm text-gray-500">@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-gray-600">Chưa có bình luận nào.</p>
+            }
         </div>
-
-        <!-- CKEditor cho chỉnh sửa nhanh (hiển thị khi nhấn nút chỉnh sửa) -->
-        <div id="quick-edit-container" class="hidden bg-white rounded-lg shadow-lg mt-8 p-6">
-            <h3 class="text-xl font-semibold mb-4">Chỉnh sửa nhanh</h3>
-            <form id="quick-edit-form" method="post" asp-action="QuickEdit">
-                <input type="hidden" name="Id" value="@Model.Id" />
-                <div class="mb-4">
-                    <label for="Title" class="block text-sm font-medium text-gray-700 mb-1">Tiêu đề</label>
-                    <input type="text" name="Title" id="Title" value="@Model.Title"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="mb-4">
-                    <label for="editor" class="block text-sm font-medium text-gray-700 mb-1">Nội dung</label>
-                    <textarea name="Content" id="editor">@Html.Raw(Model.Content)</textarea>
-                </div>
-                <div class="flex justify-end space-x-2">
-                    <button type="button" onclick="cancelQuickEdit()"
-                            class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                        Hủy
-                    </button>
-                    <button type="submit"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-                        Lưu thay đổi
-                    </button>
-                </div>
-            </form>
+    }
+    else
+    {
+        <!-- Thông báo nếu không có quyền -->
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">
+                @if (!User.Identity.IsAuthenticated)
+                {
+                    <span>Đăng nhập để xem bài viết</span>
+                }
+                else
+                {
+                    <span>Bạn không có quyền truy cập bài viết này</span>
+                }
+            </h3>
+            <p class="text-gray-600 mb-4">
+                @if (!User.Identity.IsAuthenticated)
+                {
+                    <span>Vui lòng đăng nhập để xem nội dung bài viết.</span>
+                }
+                else
+                {
+                    <span>Bài viết này chỉ dành cho học viên đã đăng ký khóa học hoặc bài viết cộng đồng.</span>
+                }
+            </p>
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <a asp-controller="Account" asp-action="Login" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                    Đăng nhập
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Course" asp-action="Details" asp-route-id="@Model.CourseId" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                    Xem khóa học
+                </a>
+            }
         </div>
-    </div>
+    }
 </div>
-
-@section Scripts {
-
-
-    <script>
-
-        // Hàm để thích hoặc bỏ thích bài viết
-        async function toggleLike(postId) {
-            const userId = '@User.FindFirstValue(ClaimTypes.NameIdentifier)';
-            const response = await fetch(`/api/LikePost/${postId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ UserId: userId })
-            });
-            if (response.ok) {
-                const likeStatus = document.getElementById('like-status');
-                const likeCount = document.getElementById('like-count');
-                if (likeStatus.innerText === 'Thích') {
-                    likeCount.innerText = parseInt(likeCount.innerText) + 1;
-                    likeStatus.innerText = 'Bỏ thích';
-                } else {
-                    likeCount.innerText = parseInt(likeCount.innerText) - 1;
-                    likeStatus.innerText = 'Thích';
-                }
-            } else {
-                alert('Có lỗi xảy ra. Vui lòng thử lại.');
-            }
-        }
-
-        // Hàm kiểm tra trạng thái thích
-        async function checkIfLiked(postId) {
-            const response = await fetch(`/api/LikePost/${postId}/isLiked`);
-            if (response.ok) {
-                const isLiked = await response.json();
-                const likeStatus = document.getElementById('like-status');
-                if (isLiked) {
-                    likeStatus.innerText = 'Bỏ thích';
-                }
-            }
-        }
-
-        // Hiển thị form chỉnh sửa nhanh
-        function showQuickEdit() {
-            document.getElementById('quick-edit-container').classList.remove('hidden');
-        }
-
-        // Hủy chỉnh sửa nhanh
-        function cancelQuickEdit() {
-            document.getElementById('quick-edit-container').classList.add('hidden');
-        }
-    </script>
-}

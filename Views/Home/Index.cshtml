@@ -1,5 +1,4 @@
-﻿// Views/Home/Index.cshtml - Main landing page
-@using DisCourseW.Models
+﻿@using DisCourseW.Models
 @model List<Post>
 
 <div class="container mx-auto px-4 py-8">
@@ -28,25 +27,40 @@
                     }
 
                     <h3 class="text-xl font-semibold mb-2">
-                        <a asp-controller="Articles" asp-action="Details" asp-route-id="@article.Id" class="hover:text-blue-600">
-                            @article.Title
-                        </a>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a asp-controller="Post" asp-action="Details" asp-route-id="@article.Id" class="hover:text-blue-600">
+                                @article.Title
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Details", "Post", new { id = article.Id })" class="hover:text-blue-600">
+                                @article.Title (Đăng nhập để xem)
+                            </a>
+                        }
                     </h3>
-
-                    @* <p class="text-gray-700 mb-4">@article.Summary</p> *@
 
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
-                            @* <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded mr-2"> *@
-                            @*     @article.Course *@
-                            @* </span> *@
                             @if (article.Course != null)
                             {
-                                <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                                    <a asp-controller="Course" asp-action="Details" asp-route-id="@article.CourseId">
-                                        @article.Course.Name
-                                    </a>
-                                </span>
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                        <a asp-controller="Course" asp-action="Details" asp-route-id="@article.CourseId">
+                                            @article.Course.Name
+                                        </a>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                        <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Details", "Course", new { id = article.CourseId })">
+                                            @article.Course.Name (Đăng nhập)
+                                        </a>
+                                    </span>
+                                }
                             }
                         </div>
                         <div class="text-gray-500 text-sm">
@@ -57,7 +71,14 @@
             }
 
             <div class="mt-4">
-                <a asp-controller="Post" asp-action="Index" class="text-blue-600 hover:underline">View all articles →</a>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <a asp-controller="Post" asp-action="Index" class="text-blue-600 hover:underline">View all articles →</a>
+                }
+                else
+                {
+                    <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("AllPosts", "Post")" class="text-blue-600 hover:underline">View all articles (Đăng nhập) →</a>
+                }
             </div>
         </div>
 
@@ -67,33 +88,40 @@
                 <div class="space-y-4">
                     @foreach (var course in ViewBag.PopularCourses)
                     {
-                        <a asp-controller="Course" asp-action="Details" asp-route-id="@course.Id"
-                           class="flex items-center p-3 rounded-lg hover:bg-gray-50">
+                        <div class="flex items-center p-3 rounded-lg hover:bg-gray-50">
                             <img src="@course.Thumbnail" alt="@course.Name" class="w-12 h-12 rounded-lg mr-4">
                             <div>
-                                <h3 class="font-medium">@course.Name</h3>
-                                @* <p class="text-sm text-gray-500">@course.EnrollmentCount students</p> *@
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    <a asp-controller="Course" asp-action="Details" asp-route-id="@course.Id" class="font-medium">
+                                        @course.Name
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Details", "Course", new { id = course.Id })" class="font-medium">
+                                        @course.Name (Đăng nhập)
+                                    </a>
+                                }
+                                </div>
                             </div>
-                        </a>
                     }
                 </div>
                 <div class="mt-4">
-                    <a asp-controller="Course" asp-action="Index" class="text-blue-600 hover:underline">Browse all courses →</a>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a asp-controller="Course" asp-action="Index" class="text-blue-600 hover:underline">Browse all courses →</a>
+                    }
+                    else
+                    {
+                        <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Url.Action("Index", "Course")" class="text-blue-600 hover:underline">Browse all courses (Đăng nhập) →</a>
+                    }
                 </div>
             </div>
-
-            @* <div class="bg-white rounded-lg shadow-md p-6"> *@
-            @*     <h2 class="text-xl font-semibold mb-4">Popular Topics</h2> *@
-            @*     <div class="flex flex-wrap gap-2"> *@
-            @*         @foreach (var category in ViewBag.PopularCategories) *@
-            @*         { *@
-            @*             <a asp-controller="Articles" asp-action="Index" asp-route-categoryId="@category.Id" *@
-            @*                class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm"> *@
-            @*                 @category.Name *@
-            @*             </a> *@
-            @*         } *@
-            @*     </div> *@
-            @* </div> *@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
