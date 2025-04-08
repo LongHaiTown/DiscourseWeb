@@ -63,6 +63,13 @@ namespace DisCourse.Repository
                            .Take(count) // Lấy số lượng khóa học được chỉ định
                            .ToList();  // Chuyển đổi thành danh sách
         }
+        public async Task<List<Course>> GetCoursesByIdsAsync(List<int> courseIds)
+        {
+            return await _context.Courses
+                .Where(c => courseIds.Contains(c.Id))
+                .Include(c => c.Owner) // Include Owner để lấy UserName
+                .ToListAsync();
+        }
 
     }
 }

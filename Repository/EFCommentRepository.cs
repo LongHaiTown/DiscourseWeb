@@ -20,6 +20,7 @@ namespace DisCourse.Repository
         {
             return await _context.Comments
                 .Where(c => c.PostId == postId)
+                 .Include(p => p.Author) // Load User
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
         }

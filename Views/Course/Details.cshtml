@@ -7,8 +7,9 @@
 
     var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
     var isOwner = currentUserId == Model.Course.OwnerID;
-    var isEnrolled = Model.EnrolledUserIds != null &&
-                     Model.EnrolledUserIds.Any(user => user.Id == currentUserId);
+    var isAdmin = User.IsInRole("Admin");
+    var hasOwnerPrivileges = isOwner || isAdmin; // Admin có quyền như Owner
+    var isEnrolled = Model.EnrolledUserIds != null && Model.EnrolledUserIds.Any(user => user.Id == currentUserId);
     var latestPost = Model.Posts.OrderByDescending(post => post.CreatedAt).FirstOrDefault();
 }
 
@@ -36,8 +37,8 @@
                     </a>
                 </div>
 
-                <!-- Edit Button (if owner) -->
-                @if (isOwner)
+                <!-- Edit Button (if owner or admin) -->
+                @if (hasOwnerPrivileges)
                 {
                     <div class="absolute top-4 right-4">
                         <a asp-action="Edit" asp-controller="Courses" asp-route-id="@Model.Course.Id" class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-md flex items-center transition-colors">
@@ -66,7 +67,7 @@
             </div>
         </div>
 
-        @if (User.Identity.IsAuthenticated && (isOwner || isEnrolled))
+        @if (User.Identity.IsAuthenticated && (hasOwnerPrivileges || isEnrolled))
         {
             <!-- Create Post Button -->
             <div class="flex justify-between items-center mb-6">
@@ -127,7 +128,7 @@
                                         <span class="text-gray-500">@post.CreatedAt.ToString("dd/MM/yyyy")</span>
                                     </div>
 
-                                    @if (currentUserId == Model.Course.OwnerID)
+                                    @if (hasOwnerPrivileges)
                                     {
                                         <div class="mt-4 flex justify-end space-x-2">
                                             <a asp-controller="Post" asp-action="Edit" asp-route-id="@post.Id"
@@ -158,7 +159,7 @@
                         </svg>
                         <h3 class="text-lg font-medium text-gray-900 mb-2">Chưa có bài viết chính thức</h3>
                         <p class="text-gray-600 mb-4">Giảng viên chưa đăng bài viết nào cho khóa học này.</p>
-                        @if (isOwner)
+                        @if (hasOwnerPrivileges)
                         {
                             <a asp-controller="Post" asp-action="Create" asp-route-courseId="@Model.Course.Id" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
                                 Tạo bài viết đầu tiên
@@ -190,7 +191,7 @@
                                 }
                                 <div class="p-4">
                                     <h3 class="text-lg font-semibold mb-2">
-                                        <a asp-controller="Articles" asp-action="Details" asp-route-id="@post.Id" class="hover:text-blue-600">@post.Title</a>
+                                        <a asp-controller="Post" asp-action="Details" asp-route-id="@post.Id" class="hover:text-blue-600">@post.Title</a>
                                     </h3>
                                     <p class="text-gray-600 text-sm mb-3 line-clamp-2">@(post.Content?.Length > 150 ? post.Content.Substring(0, 150) + "..." : post.Content)</p>
                                     <div class="flex items-center justify-between text-sm">
@@ -201,7 +202,7 @@
                                         <span class="text-gray-500">@post.CreatedAt.ToString("dd/MM/yyyy")</span>
                                     </div>
 
-                                    @if (currentUserId == Model.Course.OwnerID || currentUserId == post.AuthorId)
+                                    @if (hasOwnerPrivileges || currentUserId == post.AuthorId)
                                     {
                                         <div class="mt-4 flex justify-end space-x-2">
                                             <a asp-controller="Post" asp-action="Edit" asp-route-id="@post.Id"
@@ -352,7 +353,7 @@
 
         // Mặc định hiển thị tab "official" nếu có nội dung
         document.addEventListener('DOMContentLoaded', () => {
-        @if (User.Identity.IsAuthenticated && (isOwner || isEnrolled))
+        @if (User.Identity.IsAuthenticated && (hasOwnerPrivileges || isEnrolled))
         {
             <text>showTab('official');</text>
         }

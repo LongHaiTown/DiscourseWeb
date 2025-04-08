@@ -41,6 +41,12 @@ namespace DisCourse.Controllers
                 return false; // Chưa đăng nhập thì không có quyền
             }
 
+            // Kiểm tra nếu người dùng là Admin
+            if (User.IsInRole("Admin"))
+            {
+                return true; // Admin luôn có quyền truy cập
+            }
+
             // Lấy thông tin bài viết
             var post = await _postRepository.GetByIdAsync(postId);
             if (post == null)
@@ -72,11 +78,54 @@ namespace DisCourse.Controllers
             return false;
         }
 
+
         // Hiển thị danh sách bài viết
         [Authorize]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder = "newest", string searchQuery = null)
         {
-            var posts = await _postRepository.GetAllAsync();
+            var posts = await _postRepository.GetAllAsync(); // Lấy tất cả bài viết
+            var courses = await _courseRepository.GetAllAsync(); // Lấy tất cả khóa học
+
+            // Lọc bài viết theo searchQuery (nếu có)
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchQuery = searchQuery.ToLower();
+                posts = posts.Where(p => p.Title.ToLower().Contains(searchQuery) ||
+                                        p.Summary?.ToLower().Contains(searchQuery) == true)
+                            .ToList();
+            }
+
+            // Xử lý sắp xếp dựa trên sortOrder
+            switch (sortOrder.ToLower())
+            {
+                case "newest":
+                    posts = posts.OrderByDescending(p => p.CreatedAt).ToList();
+                    break;
+                case "oldest":
+                    posts = posts.OrderBy(p => p.CreatedAt).ToList();
+                    break;
+                case "course-asc":
+                    posts = posts.OrderBy(p => p.Course.Name).ToList();
+                    break;
+                case "course-desc":
+                    posts = posts.OrderByDescending(p => p.Course.Name).ToList();
+                    break;
+                case "author-asc":
+                    posts = posts.OrderBy(p => p.Author.UserName).ToList();
+                    break;
+                case "author-desc":
+                    posts = posts.OrderByDescending(p => p.Author.UserName).ToList();
+                    break;
+                default:
+                    posts = posts.OrderByDescending(p => p.CreatedAt).ToList(); // Mặc định là mới nhất
+                    break;
+            }
+
+            // Lưu giá trị để giữ trạng thái trong view
+            ViewBag.Courses = courses;
+            ViewBag.SortOrder = sortOrder;
+            ViewBag.SearchQuery = searchQuery;
+
             return View(posts);
         }
 

@@ -12,5 +12,7 @@ namespace DisCourseW.Repository
         Task<bool> AddUserToCourseAsync(string userId, int courseId);
         Task<bool> RemoveUserFromCourseAsync(int courseId, string userId);
         Task<bool> IsUserEnrolledInCourseAsync(string userId, int courseId);
+
+        Task<List<int>> GetEnrolledCourseIdsByUserIdAsync(string userId);
     }
 }

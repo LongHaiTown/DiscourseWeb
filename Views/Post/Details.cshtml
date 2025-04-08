@@ -8,7 +8,7 @@
 <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-6">@Model.Title</h1>
 
-    @if (canAccess.HasValue && canAccess.Value)
+    @if ( @canAccess == true)
     {
         <!-- Hiển thị nội dung bài viết nếu có quyền -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -26,25 +26,14 @@
         </div>
 
         <!-- Hiển thị bình luận -->
+        <!-- Hiển thị bình luận -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <h2 class="text-2xl font-semibold mb-4">Bình luận</h2>
-            @if (comments != null && comments.Any())
-            {
-                <ul class="space-y-4">
-                    @foreach (var comment in comments)
-                    {
-                        <li class="border-b pb-4">
-                            <p class="font-medium">@comment.Author.UserName</p>
-                            <p class="text-gray-600">@comment.Content</p>
-                            <p class="text-sm text-gray-500">@comment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
-                        </li>
-                    }
-                </ul>
-            }
-            else
-            {
-                <p class="text-gray-600">Chưa có bình luận nào.</p>
-            }
+            @Html.Partial("/Views/Shared/_CommentList.cshtml", comments)
+        </div>
+        <!-- Hiển thị form bình luận -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+            @Html.Partial("_CommentForm", new DisCourse.Models.Comment { PostId = Model.Id })
         </div>
     }
     else

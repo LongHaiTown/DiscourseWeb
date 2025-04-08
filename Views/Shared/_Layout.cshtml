@@ -10,7 +10,6 @@
 
     <!-- Thêm vào phần <head> -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
@@ -56,7 +55,7 @@
                         }
                     })
                     .then(newEditor => {
-                        window.editor = newEditor; // Lưu editor vào biến toàn cục để dễ debug
+                        window.editor = newEditor;
                         const form = document.querySelector('form');
                         if (form) {
                             form.addEventListener('submit', () => {
@@ -74,18 +73,17 @@
     <!-- CSS tùy chỉnh để tránh xung đột với Tailwind -->
     <style>
         .ck-editor__editable {
-            min-height: 200px; /* Đảm bảo chiều cao tối thiểu */
+            min-height: 200px;
         }
 
         .ck-content h1, .ck-content h2, .ck-content h3 {
-            font-size: revert; /* Khôi phục kích thước chữ mặc định */
+            font-size: revert;
             line-height: revert;
             margin: revert;
         }
     </style>
 
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
     <header class="bg-white shadow-sm sticky top-0 z-10">
@@ -106,7 +104,8 @@
                 </div>
                 <div class="flex items-center">
                     <div class="relative mr-4">
-                        <form asp-controller="Articles" asp-action="Search" method="get">
+                        <!-- Thanh tìm kiếm trên Navbar -->
+                        <form class="d-flex" method="get" asp-area="" asp-controller="Search" asp-action="Index">
                             <input type="text" name="q" placeholder="Search..."
                                    class="w-full md:w-64 px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                             <button type="submit" class="absolute right-0 top-0 mt-2 mr-3">
@@ -128,16 +127,26 @@
                                     </svg>
                                 </button>
                                 <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10" style="top: 100%;">
-                                    <a asp-area="" asp-controller="Account" asp-action="Profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</a>
+                                    <a asp-area="" asp-controller="Account" asp-action="Index" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</a>
                                     <a asp-controller="Account" asp-action="MyCourses" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Courses</a>
                                     <a asp-controller="Account" asp-action="Bookmarks" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Bookmarks</a>
-                                    <div class="border-t border-gray-100"></div>
 
+                                    <!-- Thêm nút Quản lý khóa học nếu là Teacher -->
+                                    @if (User.IsInRole("Teacher"))
+                                    {
+                                        <a asp-area="Teacher" asp-controller="Course" asp-action="Index" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Quản lý khóa học</a>
+                                    }
+
+                                    <!-- Thêm nút Quản lý khóa học nếu là Teacher -->
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a asp-area="Admin" asp-controller="Administrator" asp-action="Index" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin</a>
+                                    }
+                                    <div class="border-t border-gray-100"></div>
                                     <form asp-area="Identity" asp-page="/Account/Logout" method="post">
                                         @Html.AntiForgeryToken()
                                         <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign out</button>
                                     </form>
-
                                 </div>
                             </div>
                         </div>
@@ -174,9 +183,7 @@
 
     <main class="flex-grow">
         @RenderBody()
-
     </main>
-
 
     <footer class="bg-white border-t py-8">
         <div class="container mx-auto px-4">
@@ -213,7 +220,7 @@
                 </div>
             </div>
             <div class="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-                <p class="text-gray-600">&copy; @DateTime.Now.Year KnowledgeShare. All rights reserved.</p>
+                <p class="text-gray-600">© @DateTime.Now.Year KnowledgeShare. All rights reserved.</p>
                 <div class="flex space-x-4 mt-4 md:mt-0">
                     <a href="#" class="text-gray-600 hover:text-blue-600">
                         <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -235,8 +242,6 @@
         </div>
     </footer>
 
-
-    @* <script src="~/js/site.js" asp-append-version="true"></script> *@
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>

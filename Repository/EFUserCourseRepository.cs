@@ -2,7 +2,6 @@
 using DisCourseW.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 
 namespace DisCourseW.Repository
 {
@@ -72,7 +71,13 @@ namespace DisCourseW.Repository
             return await _context.UserCourses
                 .AnyAsync(uc => uc.UserId == userId && uc.CourseId == courseId);
         }
-
+        public async Task<List<int>> GetEnrolledCourseIdsByUserIdAsync(string userId)
+        {
+            return await _context.UserCourses
+                .Where(uc => uc.UserId == userId)
+                .Select(uc => uc.CourseId)
+                .ToListAsync();
+        }
 
     }
 }

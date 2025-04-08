@@ -12,6 +12,8 @@ namespace DisCourseW.Controllers
     public class AccountController : Controller
     {
         private readonly ICourseRepository _courseRepository;
+        private readonly IPostRepository _postRepository;
+
         private readonly ILogger<PostController> _logger;
         private readonly IUserRepository _userRepository;
         private readonly IUserCourseRepository _userCourseRepository;
@@ -19,12 +21,13 @@ namespace DisCourseW.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public AccountController(ICourseRepository courseRepository, ILogger<PostController> logger, IUserRepository userRepository,IUserCourseRepository userCourseRepository,IUserProfilePictureRepository userProfilePictureRepository,
+        public AccountController(ICourseRepository courseRepository, IPostRepository postRepository, ILogger<PostController> logger, IUserRepository userRepository,IUserCourseRepository userCourseRepository,IUserProfilePictureRepository userProfilePictureRepository,
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             RoleManager<IdentityRole> roleManager)
         {
             _courseRepository = courseRepository;
+            _postRepository = postRepository;
             _logger = logger;
             _userRepository = userRepository;
             _userCourseRepository = userCourseRepository;
@@ -35,26 +38,55 @@ namespace DisCourseW.Controllers
         }
 
         // Hàm lưu ảnh vào thư mục wwwroot/images
-        public IActionResult Index()
-        {
-            return RedirectToAction("Profile"); // Chuyển hướng đến trang hồ sơ
-        }
-        public async Task<IActionResult> Profile()
+        public async Task<IActionResult> Index()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Lấy ID người dùng hiện tại
-            var user = await _userRepository.GetUserByIdAsync(userId); // Lấy thông tin người dùng từ repository
-            var userProfilePicture = await _userProfilePictureRepository.GetProfilePictureByUserIdAsync(userId); // Lấy ảnh đại diện
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account"); // Chuyển hướng nếu chưa đăng nhập
+            }
 
-            var model = new UserProfileViewModel
+            // Lấy thông tin người dùng
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            var userProfilePicture = await _userProfilePictureRepository.GetProfilePictureByUserIdAsync(userId);
+
+            // Lấy danh sách khóa học đã đăng ký từ UserCourse
+            var enrolledCourseIds = await _userCourseRepository.GetEnrolledCourseIdsByUserIdAsync(userId);
+            var enrolledCourses = await _courseRepository.GetCoursesByIdsAsync(enrolledCourseIds);
+
+            // Lấy danh sách bài viết của người dùng
+            var userPosts = await _postRepository.GetPostsByAuthorIdAsync(userId);
+
+            // Tạo ViewModel
+            var model = new AccountIndexViewModel
             {
                 UserId = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
-                ProfilePictureUrl = userProfilePicture?.ProfilePictureUrl // Lấy đường dẫn ảnh đại diện
+                ProfilePictureUrl = userProfilePicture?.ProfilePictureUrl,
+                EnrolledCourses = enrolledCourses,
+                UserPosts = userPosts
             };
 
-            return View(model); // Trả về view với model chứa thông tin người dùng
+            return View(model); // Trả về view với model
         }
+
+        //public async Task<IActionResult> Profile()
+        //{
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Lấy ID người dùng hiện tại
+        //    var user = await _userRepository.GetUserByIdAsync(userId); // Lấy thông tin người dùng từ repository
+        //    var userProfilePicture = await _userProfilePictureRepository.GetProfilePictureByUserIdAsync(userId); // Lấy ảnh đại diện
+
+        //    var model = new UserProfileViewModel
+        //    {
+        //        UserId = user.Id,
+        //        UserName = user.UserName,
+        //        Email = user.Email,
+        //        ProfilePictureUrl = userProfilePicture?.ProfilePictureUrl // Lấy đường dẫn ảnh đại diện
+        //    };
+
+        //    return View(model); // Trả về view với model chứa thông tin người dùng
+        //}
     
         private async Task<string?> SaveImage(IFormFile? imageFile)
         {

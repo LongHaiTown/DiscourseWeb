@@ -1,0 +1,270 @@
+﻿@model DisCourseW.Models.AccountIndexViewModel
+
+@{
+    ViewData["Title"] = "My Account";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
+            <div class="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600">
+                <!-- Cover image area -->
+                <div class="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-black/50 to-transparent"></div>
+
+                <!-- Profile picture -->
+                <div class="absolute -bottom-16 left-8">
+                    <div class="relative group">
+                        <div class="w-32 h-32 rounded-full border-4 border-white bg-white overflow-hidden">
+                            <img src="@(!string.IsNullOrEmpty(Model.ProfilePictureUrl) ? Model.ProfilePictureUrl : Url.Content("~/images/placeholder-user.jpg"))"
+                                 alt="Ảnh đại diện"
+                                 class="w-full h-full object-cover" />
+                        </div>
+                        <button type="button"
+                                onclick="document.getElementById('profile-picture-modal').classList.remove('hidden')"
+                                class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Edit profile button -->
+                <div class="absolute top-4 right-4">
+                    <button type="button"
+                            onclick="document.getElementById('edit-profile-modal').classList.remove('hidden')"
+                            class="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-md flex items-center transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                        Chỉnh sửa
+                    </button>
+                </div>
+            </div>
+
+            <div class="pt-20 px-8 pb-8">
+                <h1 class="text-3xl font-bold">@Model.UserName</h1>
+                <p class="text-gray-600">@Model.Email</p>
+
+                <div class="mt-6 flex flex-wrap gap-4">
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        <span>@Model.UserPosts.Count bài viết</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 4v12l-4-2-4 2V4M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span>@Model.EnrolledCourses.Count khóa học</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8">
+                    <button onclick="showTab('posts')" id="tab-posts" class="tab-button border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        Bài viết
+                    </button>
+                    <button onclick="showTab('courses')" id="tab-courses" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        Khóa học
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div>
+            <!-- Posts Tab -->
+            <div id="content-posts" class="tab-content">
+                @if (Model.UserPosts != null && Model.UserPosts.Any())
+                {
+                    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        @foreach (var post in Model.UserPosts)
+                        {
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.01]">
+                                @if (!string.IsNullOrEmpty(post.Thumbnail))
+                                {
+                                    <img src="@post.Thumbnail" alt="@post.Title" class="w-full h-48 object-cover">
+                                }
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold mb-2">
+                                        <a asp-controller="Post" asp-action="Details" asp-route-id="@post.Id" class="hover:text-blue-600">@post.Title</a>
+                                    </h3>
+                                    <p class="text-gray-600 text-sm mb-3">@post.Summary</p>
+                                    <div class="flex items-center justify-between text-sm">
+                                        <span class="text-gray-500">@post.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Chưa có bài viết nào</h3>
+                        <p class="text-gray-600 mb-4">Bạn chưa đăng bài viết nào.</p>
+                        <a asp-controller="Post" asp-action="Create" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            Tạo bài viết mới
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <!-- Courses Tab -->
+            <div id="content-courses" class="tab-content hidden">
+                @if (Model.EnrolledCourses != null && Model.EnrolledCourses.Any())
+                {
+                    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        @foreach (var course in Model.EnrolledCourses)
+                        {
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.01]">
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold mb-2">
+                                        <a asp-controller="Course" asp-action="Details" asp-route-id="@course.Id" class="hover:text-blue-600">@course.Name</a>
+                                    </h3>
+                                    <p class="text-gray-600 text-sm mb-3">@course.Description</p>
+                                    <div class="flex items-center justify-between text-sm">
+                                        <span class="text-gray-500">Created by @course.Owner.UserName</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Chưa có khóa học nào</h3>
+                        <p class="text-gray-600 mb-4">Bạn chưa đăng ký khóa học nào.</p>
+                        <a asp-controller="Course" asp-action="Index" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            Khám phá khóa học
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Picture Upload Modal -->
+<div id="profile-picture-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">Cập nhật ảnh đại diện</h3>
+            <button type="button" onclick="document.getElementById('profile-picture-modal').classList.add('hidden')" class="text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <form asp-action="UploadProfilePicture" method="post" enctype="multipart/form-data" class="space-y-4">
+            <div class="flex flex-col items-center justify-center">
+                <div class="w-32 h-32 rounded-full overflow-hidden bg-gray-200 mb-4">
+                    <img id="preview-profile-image" src="@(Model.ProfilePictureUrl ?? "/images/default-avatar.png")" alt="Ảnh đại diện" class="w-full h-full object-cover">
+                </div>
+
+                <label for="imageFile" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer">
+                    Chọn ảnh
+                </label>
+                <input type="file" name="imageFile" id="imageFile" accept="image/*" class="hidden" onchange="previewProfileImage(this)" required>
+                <p class="text-sm text-gray-500 mt-2">Hỗ trợ JPG, PNG hoặc GIF. Kích thước tối đa 2MB.</p>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="document.getElementById('profile-picture-modal').classList.add('hidden')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                    Hủy
+                </button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                    Lưu thay đổi
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="edit-profile-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">Chỉnh sửa thông tin cá nhân</h3>
+            <button type="button" onclick="document.getElementById('edit-profile-modal').classList.add('hidden')" class="text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <form asp-action="UpdateProfile" method="post" class="space-y-4">
+            <div>
+                <label for="UserName" class="block text-sm font-medium text-gray-700 mb-1">Tên người dùng</label>
+                <input type="text" id="UserName" name="UserName" value="@Model.UserName"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <div>
+                <label for="Email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" id="Email" name="Email" value="@Model.Email"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="document.getElementById('edit-profile-modal').classList.add('hidden')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+                    Hủy
+                </button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                    Lưu thay đổi
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Tab switching functionality
+    function showTab(tabName) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+
+        // Show selected tab content
+        document.getElementById('content-' + tabName).classList.remove('hidden');
+
+        // Update tab button styles
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('border-blue-500', 'text-blue-600');
+            button.classList.add('border-transparent', 'text-gray-500');
+        });
+
+        document.getElementById('tab-' + tabName).classList.remove('border-transparent', 'text-gray-500');
+        document.getElementById('tab-' + tabName).classList.add('border-blue-500', 'text-blue-600');
+    }
+
+    // Preview profile image before upload
+    function previewProfileImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                document.getElementById('preview-profile-image').src = e.target.result;
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>

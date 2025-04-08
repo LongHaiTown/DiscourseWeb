@@ -57,5 +57,13 @@ namespace DisCourse.Repository
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<List<Post>> GetPostsByAuthorIdAsync(string authorId)
+        {
+            return await _context.Posts
+                .Where(p => p.AuthorId == authorId)
+                .Include(p => p.Author)
+                .Include(p => p.Course)
+                .ToListAsync();
+        }
     }
 }

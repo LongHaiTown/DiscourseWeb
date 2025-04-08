@@ -10,6 +10,7 @@ using DisCourseW.Areas.Admin.Models;
 namespace DisCourseW.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")] // Đảm bảo chỉ Admin truy cập được
     public class AdministratorController : Controller
     {
         private readonly ICourseRepository _courseRepository;
@@ -28,15 +29,18 @@ namespace DisCourseW.Areas.Admin.Controllers
             _userCourseRepository = userCourseRepository;
         }
 
-        // 📌 Hiển thị danh sách Course
+        // 📌 Hiển thị danh sách Course, Post và User
         public async Task<IActionResult> Index()
         {
             var courses = await _courseRepository.GetAllAsync();
             var posts = await _postRepository.GetAllAsync();
+            var users = await _userRepository.GetAllUsersAsync(); // Giả định có phương thức GetAllAsync trong IUserRepository
+
             var viewModel = new CoursePostView
             {
                 Courses = courses,
-                Posts = posts
+                Posts = posts,
+                Users = users
             };
             return View(viewModel);
         }

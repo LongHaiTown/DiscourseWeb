@@ -15,5 +15,7 @@ namespace DisCourse.Repository
 
         // 🆕 Hàm mới để lấy tất cả bài viết của một khóa học
         Task<IEnumerable<Post>> GetPostsByCourseIdAsync(int courseId);
+
+        Task<List<Course>> GetCoursesByIdsAsync(List<int> courseIds);
     }
 }
