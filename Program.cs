@@ -14,6 +14,8 @@ builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
 // Đăng ký DbContext
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -66,6 +68,12 @@ using (var scope = app.Services.CreateScope())
         throw;
     }
 }
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
+
 
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
